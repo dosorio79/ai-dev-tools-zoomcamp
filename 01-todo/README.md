@@ -106,8 +106,16 @@ Tests cover:
 
 ---
 ## Notes
-- Database defaults to SQLite (`db.sqlite3` in the repo). Delete it before first run if you want a clean slate.
-- Admin is available at `/admin/`; create a user with `make superuser`.
+The project uses SQLite by default (db.sqlite3).
+If you want to start from scratch, simply delete this file before running migrations.
+
+The Django admin panel is available at:
+http://localhost:8010/admin/
+
+To create an admin user:~
+```
+make superuser
+```
 ---
 
 ## Completed Module 1
