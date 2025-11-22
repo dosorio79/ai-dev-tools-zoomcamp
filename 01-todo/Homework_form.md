@@ -21,7 +21,7 @@ manage.py
 urls.py
 wsgi.py
 
-Question 3: Django Models
+## Question 3: Django Models
 Let's now proceed to creating models - the mapping from python objects to a relational database.
 
 For the TODO app, which models do we need? Implement them.
@@ -36,3 +36,4 @@ Create a makefile
 
 python manage.py makemigrations
 python manage.py migrate
+

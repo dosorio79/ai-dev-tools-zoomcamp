@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">TODO List</h2>
+
+<!-- Add Todo Form -->
+<form method="POST" class="card p-3 mb-4 shadow-sm">
+    {% csrf_token %}
+    <div class="row g-3">
+
+        <div class="col-md-7">
+            <input 
+                type="text" 
+                name="title" 
+                class="form-control"
+                placeholder="Add a new todo..."
+                required
+            >
+        </div>
+
+        <div class="col-md-3">
+            <input
+                type="date"
+                name="due_date"
+                class="form-control"
+            >
+        </div>
+
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+    </div>
+</form>
+
+<!-- Todo List -->
+<ul class="list-group shadow-sm">
+    {% for todo in todos %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+
+        <div>
+            <span class="{% if todo.completed %}text-decoration-line-through text-muted{% endif %}">
+                {{ todo.title }}
+            </span>
+
+            {% if todo.due_date %}
+                <span class="badge bg-secondary ms-2">
+                    Due: {{ todo.due_date }}
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <!-- Toggle -->
+            <form method="POST" action="{% url 'toggle_todo' todo.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-sm {% if todo.completed %}btn-warning{% else %}btn-success{% endif %}">
+                    {% if todo.completed %}Undo{% else %}Complete{% endif %}
+                </button>
+            </form>
+
+            <!-- Edit -->
+            <a href="{% url 'edit_todo' todo.pk %}" class="btn btn-sm btn-outline-primary">
+                Edit
+            </a>
+
+            <!-- Delete -->
+            <form method="POST" action="{% url 'delete_todo' todo.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+
+        </div>
+
+    </li>
+    {% empty %}
+    <li class="list-group-item text-center text-muted">No todos yet.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
