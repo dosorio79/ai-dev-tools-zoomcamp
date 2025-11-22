@@ -5,6 +5,7 @@ This folder contains my submission for **Module 1** of the AI Dev Tools Zoomcamp
 
 The goal was to build a fully working **TODO web application in Django**, using AI tools throughout the development workflow.
 
+![App Screenshot](screenshot.png)
 ---
 
 ## Features
