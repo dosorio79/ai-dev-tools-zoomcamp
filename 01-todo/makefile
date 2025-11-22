@@ -11,7 +11,8 @@ PORT ?= 8010
 # ----- Dependencies -----
 
 install:
-	uv pip install -r requirements.txt
+	uv venv
+	uv sync
 
 
 # ----- Database / Migrations -----

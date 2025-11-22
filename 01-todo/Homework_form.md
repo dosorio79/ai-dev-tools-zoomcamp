@@ -37,3 +37,34 @@ Create a makefile
 python manage.py makemigrations
 python manage.py migrate
 
+## Question 4. TODO Logic
+Let's now ask AI to implement the logic for the TODO app. Where do we put it?
+
+-> views.py
+urls.py
+admin.py
+tests.py
+
+## Question 5. Templates
+Next step is creating the templates. You will need at least two: the base one and the home one. Let's call them base.html and home.html.
+Where do you need to register the directory with the templates?
+
+INSTALLED_APPS in project's settings.py
+-> TEMPLATES['DIRS'] in project's settings.py
+TEMPLATES['APP_DIRS'] in project's settings.py
+In the app's urls.py
+
+###  Question 6. Tests
+Now let's ask AI to cover our functionality with tests.
+
+Ask it which scenarios we should cover
+Make sure they make sense
+Let it implement it and run them
+Probably it will require a few iterations to make sure that tests pass and evertyhing is working.
+
+What's the command you use for running tests in the terminal?
+
+pytest
+-> python manage.py test
+python -m django run_tests
+django-admin test
