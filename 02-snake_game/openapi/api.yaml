@@ -1,0 +1,25 @@
+openapi: "3.1.0"
+info:
+  title: Snake Game API
+  version: 1.0.0
+
+paths:
+  /auth/login:
+  /auth/signup:
+  /auth/logout:
+  /auth/me:
+
+  /leaderboard:
+  /leaderboard/{userId}:
+
+  /live-games:
+  /live-games/{gameId}:
+
+components:
+  schemas:
+    User:
+    LeaderboardEntry:
+    LiveGame:
+    LoginRequest:
+    SignupRequest:
+    SubmitScoreRequest:

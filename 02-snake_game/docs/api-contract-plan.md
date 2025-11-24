@@ -1,58 +1,107 @@
 # API Contract Plan (Pre-OpenAPI)
 
-This file defines the expected entities and endpoints before writing the OpenAPI spec.
+This document defines the expected API contract based on the existing frontend mock API.
+It is the intermediate step before producing the full OpenAPI 3.1 specification.
+
+The goal is to translate frontend interactions into backend REST endpoints with clear
+request/response structures.
 
 ---
 
-## 1. Entities
+# 1. Entities (Derived from Mock API)
 
-### User
-- id
-- username
-- password_hash
-- created_at
+## User
+- id: string
+- username: string
+- email: string
 
-### GameSession
-- id
-- user_id
-- mode ("pass-through" | "walls")
-- score
-- started_at
-- ended_at
+## LeaderboardEntry
+- id: string
+- username: string
+- score: number
+- mode: "pass-through" | "walls"
+- date: string (ISO datetime)
 
-### WatchingSession
-- id
-- user_id
-- moves: list of movement frames
-
----
-
-## 2. Auth Endpoints
-POST /signup  
-POST /login  
-GET /me  
+## LiveGame
+- id: string
+- username: string
+- currentScore: number
+- mode: "pass-through" | "walls"
+- startedAt: string (ISO datetime)
 
 ---
 
-## 3. Game Endpoints
-POST /game/new  
-POST /game/move  
-POST /game/end  
-GET /game/{id}
+# 2. Auth Request Bodies
+
+## LoginRequest
+- email: string
+- password: string
+
+## SignupRequest
+- email: string
+- username: string
+- password: string
 
 ---
 
-## 4. Leaderboard
-GET /leaderboard
+# 3. Leaderboard Request Bodies
+
+## SubmitScoreRequest
+- score: number
+- mode: "pass-through" | "walls"
 
 ---
 
-## 5. Watching
-GET /watching  
-GET /watching/{id}
+# 4. Frontend Mock API → Backend REST Endpoints Mapping
+
+This table documents how current frontend mock functions must translate into backend REST endpoints.
+
+## AUTH
+
+| Mock Function | Backend Endpoint | Method | Input | Output |
+|---------------|-----------------|--------|-------|--------|
+| login(email, password) | `/auth/login` | POST | `{ email, password }` | `{ user, access_token }` |
+| signup(email, username, password) | `/auth/signup` | POST | `{ email, username, password }` | `{ user, access_token }` |
+| logout() | `/auth/logout` | POST | none | `{ success: true }` |
+| getCurrentUser() | `/auth/me` | GET | auth token | `User` |
 
 ---
 
-## 6. Notes
-- Final request/response bodies will be written in the OpenAPI 3.1 spec
-- Backend must match these models exactly
+## LEADERBOARD
+
+| Mock Function | Backend Endpoint | Method | Input | Output |
+|---------------|-----------------|--------|-------|--------|
+| getTopScores(mode?) | `/leaderboard` | GET | `?mode=pass-through|walls` | `LeaderboardEntry[]` |
+| getUserScore(userId) | `/leaderboard/{userId}` | GET | `userId` (path) | `LeaderboardEntry` or 404 |
+| submitScore(score, mode) | `/leaderboard` | POST | `{ score, mode }` | `201 Created` |
+
+---
+
+## LIVE GAMES (Watching Mode)
+
+| Mock Function | Backend Endpoint | Method | Input | Output |
+|---------------|-----------------|--------|-------|--------|
+| getLiveGames() | `/live-games` | GET | none | `LiveGame[]` |
+| getGameById(id) | `/live-games/{id}` | GET | `gameId` (path) | `LiveGame` or 404 |
+
+---
+
+# 5. Notes for OpenAPI Spec Generation
+
+- Auth model still needs to be decided (JWT recommended).
+- Error responses need to be standardized:
+  - `400 Bad Request`
+  - `401 Unauthorized`
+  - `404 Not Found`
+- Timestamp format should use ISO 8601.
+- All enums must be explicitly defined in the OpenAPI schema.
+- Leaderboard POST should return 201 Created with either:
+  - the created entry, or
+  - an empty body
+
+---
+
+# 6. Next Step
+
+Use this mapping to generate the full OpenAPI 3.1 specification (`openapi/api.yaml`),
+which will be used to scaffold the FastAPI backend.
