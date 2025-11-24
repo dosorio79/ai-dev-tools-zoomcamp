@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 240 10% 8%;
+    --foreground: 180 100% 90%;
+
+    --card: 240 10% 12%;
+    --card-foreground: 180 100% 90%;
+
+    --popover: 240 10% 12%;
+    --popover-foreground: 180 100% 90%;
+
+    --primary: 142 76% 56%;
+    --primary-foreground: 240 10% 8%;
+
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 240 10% 8%;
+
+    --muted: 240 10% 20%;
+    --muted-foreground: 180 20% 60%;
+
+    --accent: 280 100% 70%;
+    --accent-foreground: 240 10% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 180 100% 90%;
+
+    --border: 240 10% 20%;
+    --input: 240 10% 20%;
+    --ring: 142 76% 56%;
+
+    --radius: 0.75rem;
+
+    --game-snake: 142 76% 56%;
+    --game-food: 280 100% 70%;
+    --game-grid: 240 10% 15%;
+    --game-glow: 142 76% 56%;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(142 76% 56%), hsl(180 100% 50%));
+    --gradient-cyber: linear-gradient(180deg, hsl(240 10% 12%), hsl(240 10% 8%));
+    
+    --shadow-neon: 0 0 20px hsl(142 76% 56% / 0.5);
+    --shadow-intense: 0 0 40px hsl(142 76% 56% / 0.7);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: linear-gradient(180deg, hsl(240 10% 8%), hsl(240 10% 5%));
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .neon-glow {
+    box-shadow: 0 0 20px hsl(var(--game-glow) / 0.5);
+  }
+  
+  .neon-text {
+    text-shadow: 0 0 10px hsl(var(--game-glow) / 0.8);
+  }
+  
+  .game-button {
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold uppercase tracking-wider transition-all duration-200 hover:shadow-intense hover:scale-105;
+  }
+}
