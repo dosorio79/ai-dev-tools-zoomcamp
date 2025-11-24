@@ -1,25 +1,333 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
   title: Snake Game API
   version: 1.0.0
 
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://your-backend.onrender.com
+    description: Production
+
+# By default, all endpoints require a Bearer JWT,
+# except those that explicitly override with: security: []
+security:
+  - bearerAuth: []
+
 paths:
+
+  ##############################
+  #          AUTH
+  ##############################
+
   /auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in a user
+      security: []  # anonymous
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Create a new user account
+      security: []  # anonymous
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: User created and logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid signup data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Log out the current user
+      responses:
+        '204':
+          description: Logged out successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get the current logged-in user
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  ##############################
+  #       LEADERBOARD
+  ##############################
 
   /leaderboard:
-  /leaderboard/{userId}:
+    get:
+      tags: [Leaderboard]
+      summary: Get leaderboard entries
+      parameters:
+        - in: query
+          name: mode
+          required: false
+          schema:
+            type: string
+            enum: ["pass-through", "walls"]
+      responses:
+        '200':
+          description: List of leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaderboardEntry'
 
+    post:
+      tags: [Leaderboard]
+      summary: Submit a new score for the current user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitScoreRequest'
+      responses:
+        '201':
+          description: Score submitted successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /leaderboard/{userId}:
+    get:
+      tags: [Leaderboard]
+      summary: Get leaderboard entry for a given user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Leaderboard entry for this user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardEntry'
+        '404':
+          description: User not found on leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  ##############################
+  #       LIVE GAMES
+  ##############################
+
+  # Watching mode should stay public (no JWT required)
   /live-games:
+    get:
+      tags: [LiveGames]
+      summary: List currently active live games
+      security: []  # public
+      responses:
+        '200':
+          description: List of live games
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LiveGame'
+
   /live-games/{gameId}:
+    get:
+      tags: [LiveGames]
+      summary: Get info about a specific live game
+      security: []  # public
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Live game info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveGame'
+        '404':
+          description: Live game not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 
 components:
+  ##############################
+  #        SCHEMAS
+  ##############################
   schemas:
+
     User:
+      type: object
+      required: [id, username, email]
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+
     LeaderboardEntry:
+      type: object
+      required: [id, username, score, mode, date]
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        score:
+          type: integer
+        mode:
+          type: string
+          enum: ["pass-through", "walls"]
+        date:
+          type: string
+          format: date-time
+
     LiveGame:
+      type: object
+      required: [id, username, currentScore, mode, startedAt]
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        currentScore:
+          type: integer
+        mode:
+          type: string
+          enum: ["pass-through", "walls"]
+        startedAt:
+          type: string
+          format: date-time
+
     LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+
     SignupRequest:
+      type: object
+      required: [email, username, password]
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        password:
+          type: string
+          minLength: 6
+
     SubmitScoreRequest:
+      type: object
+      required: [score, mode]
+      properties:
+        score:
+          type: integer
+        mode:
+          type: string
+          enum: ["pass-through", "walls"]
+
+    AuthResponse:
+      type: object
+      required: [user, access_token, token_type]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        access_token:
+          type: string
+        token_type:
+          type: string
+          example: bearer
+
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+
+  ##############################
+  #        SECURITY
+  ##############################
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

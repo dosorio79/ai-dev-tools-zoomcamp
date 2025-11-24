@@ -1,0 +1,3 @@
+apis:
+  02-snake_game/openapi/api.yaml:
+    alias: snake-game-api
