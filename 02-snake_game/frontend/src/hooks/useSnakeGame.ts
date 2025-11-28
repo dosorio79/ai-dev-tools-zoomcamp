@@ -56,18 +56,19 @@ export const useSnakeGame = (mode: GameMode, onGameOver?: (score: number) => voi
     lastDirectionRef.current = 'RIGHT';
   }, [generateFood]);
 
-  const changeDirection = useCallback((newDirection: Direction) => {
-    const opposites: Record<Direction, Direction> = {
-      UP: 'DOWN',
-      DOWN: 'UP',
-      LEFT: 'RIGHT',
-      RIGHT: 'LEFT',
-    };
+const changeDirection = useCallback((newDirection: Direction) => {
+  const opposites: Record<Direction, Direction> = {
+    UP: 'DOWN',
+    DOWN: 'UP',
+    LEFT: 'RIGHT',
+    RIGHT: 'LEFT',
+  };
 
-    if (opposites[newDirection] !== lastDirectionRef.current) {
-      directionRef.current = newDirection;
-    }
-  }, []);
+  if (opposites[newDirection] !== lastDirectionRef.current) {
+    directionRef.current = newDirection;
+    setGameState(prev => ({ ...prev, direction: newDirection }));
+  }
+}, []);
 
   const moveSnake = useCallback(() => {
     if (gameState.isGameOver || gameState.isPaused) return;
