@@ -1,5 +1,6 @@
 ## Prompts
 
+STEP 1
 Create a frontend UI for a real-time collaborative coding interview platform.
 
 # Features (Frontend Only, Backend Mocked)
@@ -27,16 +28,17 @@ Create a frontend UI for a real-time collaborative coding interview platform.
 # Goal
 Produce a clean, working, testable UI with fully mocked behavior that I can later connect to a real Express.js + WebSocket backend.
 
-
+STEP 2
 # openAPI specificationgeneration
 - Based on the React frontend and its src/api/mockApi.ts file, generate a complete OpenAPI 3.1 specification for the real backend.
 - Extract all endpoints, request bodies, response bodies, and error cases directly from the mockApi design.
 - Output a single OpenAPI YAML file with info, servers, paths, and components.
 
-# Scaffold the backend
+STEP 3
+# Create the backend
 Using the OpenAPI file at openapi/openapi.yaml  
 and the behaviors defined in frontend/src/api/mockApi.ts,  
-scaffold a real backend in Express.js with:
+create a real backend in Express.js with:
 
 - routes per tag
 - TypeScript support
@@ -50,4 +52,4 @@ scaffold a real backend in Express.js with:
 Do NOT invent new endpoints.
 Do NOT modify the OpenAPI spec.
 
-Only scaffold: create empty functions with typed signatures.
+

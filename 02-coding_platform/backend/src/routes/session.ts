@@ -9,7 +9,11 @@ const isLanguage = (value: unknown): value is Language =>
   typeof value === "string" && supportedLanguages.includes(value as Language);
 
 router.post("/", (req, res) => {
-  const language = isLanguage(req.body?.language) ? req.body.language : "javascript";
+  const incomingLanguage = req.body?.language;
+  if (incomingLanguage !== undefined && !isLanguage(incomingLanguage)) {
+    return res.status(400).json({ error: "language must be javascript or python" });
+  }
+  const language = isLanguage(incomingLanguage) ? incomingLanguage : "javascript";
   const session = sessionStore.createSession(language);
   res.status(201).json(session);
 });
