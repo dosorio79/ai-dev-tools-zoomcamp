@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useInterviewStore } from '@/store/interviewStore';
-import { Session, User } from '@/api/mockApi';
+import { Session, User } from '@/api/client';
 
 describe('Interview Store', () => {
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('Interview Store', () => {
   it('should set session correctly', () => {
     const session: Session = {
       id: 'test-123',
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       code: 'console.log("test");',
       language: 'javascript',
     };

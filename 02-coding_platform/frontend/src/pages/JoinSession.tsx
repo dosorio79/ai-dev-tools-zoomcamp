@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { mockApi } from '@/api/mockApi';
+import { api } from '@/api/client';
 import { useInterviewStore } from '@/store/interviewStore';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,10 +34,8 @@ const JoinSession = () => {
 
     try {
       // Join session
-      const { session, user } = await mockApi.joinSession(sessionId, userName);
-      
-      // Get all users
-      const allUsers = await mockApi.getSessionUsers(sessionId);
+      const { session, user } = await api.joinSession(sessionId, userName);
+      const allUsers = await api.getSessionUsers(sessionId);
       
       // Update store
       setSession(session);

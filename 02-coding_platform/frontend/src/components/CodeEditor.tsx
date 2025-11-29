@@ -1,6 +1,6 @@
 import Editor from '@monaco-editor/react';
 import { useInterviewStore } from '@/store/interviewStore';
-import { mockApi } from '@/api/mockApi';
+import { api } from '@/api/client';
 
 export const CodeEditor = () => {
   const { code, language, setCode } = useInterviewStore();
@@ -11,7 +11,9 @@ export const CodeEditor = () => {
       // Debounced update to mock API
       const sessionId = useInterviewStore.getState().currentSession?.id;
       if (sessionId) {
-        mockApi.updateCode(sessionId, value);
+        api.updateCode(sessionId, value).catch(() => {
+          // Silently ignore; optimistic update
+        });
       }
     }
   };

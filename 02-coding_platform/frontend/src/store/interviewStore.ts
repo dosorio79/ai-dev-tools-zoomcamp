@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Session, User, ExecutionResult } from '@/api/mockApi';
+import { Session, User, ExecutionResult, Language } from '@/api/client';
 
 interface InterviewStore {
   // Session state
@@ -9,7 +9,7 @@ interface InterviewStore {
   
   // Code state
   code: string;
-  language: 'javascript' | 'python';
+  language: Language;
   
   // Execution state
   isExecuting: boolean;

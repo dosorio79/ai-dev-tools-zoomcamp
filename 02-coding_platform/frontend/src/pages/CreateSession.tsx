@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { mockApi } from '@/api/mockApi';
+import { api } from '@/api/client';
 import { useInterviewStore } from '@/store/interviewStore';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,10 +35,8 @@ const CreateSession = () => {
 
     try {
       // Create session
-      const session = await mockApi.createSession(language);
-      
-      // Join as creator
-      const { user } = await mockApi.joinSession(session.id, userName);
+      const session = await api.createSession(language);
+      const { user } = await api.joinSession(session.id, userName);
       
       // Update store
       setSession(session);

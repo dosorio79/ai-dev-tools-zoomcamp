@@ -2,21 +2,22 @@ import { Play, Terminal, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useInterviewStore } from '@/store/interviewStore';
-import { mockApi } from '@/api/mockApi';
+import { api } from '@/api/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const ExecutionPanel = () => {
   const { code, language, isExecuting, executionResult, setIsExecuting, setExecutionResult } = useInterviewStore();
+  const sessionId = useInterviewStore.getState().currentSession?.id;
   const { toast } = useToast();
 
   const handleExecute = async () => {
-    if (isExecuting) return;
+    if (isExecuting || !sessionId) return;
 
     setIsExecuting(true);
     setExecutionResult(null);
 
     try {
-      const result = await mockApi.executeCode(code, language);
+      const result = await api.executeCode(sessionId, code, language);
       setExecutionResult(result);
       
       if (result.error) {
@@ -93,7 +94,7 @@ export const ExecutionPanel = () => {
               </pre>
             )}
             <div className="text-xs text-muted-foreground mt-3">
-              Executed at {executionResult.timestamp.toLocaleTimeString()}
+              Executed at {new Date(executionResult.timestamp).toLocaleTimeString()}
             </div>
           </div>
         )}

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CodeEditor } from '@/components/CodeEditor';
 import { UserPresence } from '@/components/UserPresence';
 import { ExecutionPanel } from '@/components/ExecutionPanel';
-import { mockApi, mockWebSocket, WebSocketMessage } from '@/api/mockApi';
+import { api, connectSessionWebSocket, WebSocketEvent } from '@/api/client';
 import { useInterviewStore } from '@/store/interviewStore';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
@@ -16,6 +16,7 @@ const InterviewSession = () => {
   const { 
     currentSession, 
     currentUser,
+    language,
     setCode,
     setLanguage,
     addUser,
@@ -29,60 +30,55 @@ const InterviewSession = () => {
       return;
     }
 
-    // Simulate WebSocket connection
-    setIsConnected(true);
-
-    // Set up mock WebSocket listener
-    const cleanup = mockWebSocket.connect(sessionId, (message: WebSocketMessage) => {
-      switch (message.type) {
-        case 'code_change':
-          setCode(message.payload.code);
-          break;
-        
-        case 'user_joined':
-          addUser(message.payload);
-          toast({
-            title: 'User Joined',
-            description: `${message.payload.name} joined the session`,
-          });
-          break;
-        
-        case 'user_left':
-          removeUser(message.payload.userId);
-          toast({
-            title: 'User Left',
-            description: 'A user left the session',
-          });
-          break;
-        
-        case 'language_change':
-          setLanguage(message.payload.language);
-          setCode(message.payload.code);
-          toast({
-            title: 'Language Changed',
-            description: `Switched to ${message.payload.language}`,
-          });
-          break;
-      }
-    });
-
-    // Simulate activity for demo purposes
-    const stopActivity = mockWebSocket.simulateActivity(sessionId);
+    const disconnect = connectSessionWebSocket(
+      sessionId,
+      (message: WebSocketEvent) => {
+        switch (message.type) {
+          case 'code_change':
+            setCode(message.payload.code);
+            break;
+          case 'user_joined':
+            addUser(message.payload.user);
+            toast({
+              title: 'User Joined',
+              description: `${message.payload.user.name} joined the session`,
+            });
+            break;
+          case 'user_left':
+            removeUser(message.payload.user.id);
+            toast({
+              title: 'User Left',
+              description: `${message.payload.user.name} left the session`,
+            });
+            break;
+          case 'language_change':
+            setLanguage(message.payload.language);
+            toast({
+              title: 'Language Changed',
+              description: `Switched to ${message.payload.language}`,
+            });
+            break;
+          case 'execution_result':
+            // handled in ExecutionPanel via direct API call; ignore broadcasts here
+            break;
+        }
+      },
+      (connected) => setIsConnected(connected)
+    );
 
     return () => {
-      cleanup();
-      stopActivity();
+      disconnect();
       setIsConnected(false);
       if (currentUser) {
-        mockApi.leaveSession(sessionId, currentUser.id);
+        api.leaveSession(sessionId, currentUser.id).catch(() => {});
       }
     };
   }, [sessionId, currentSession, currentUser, navigate]);
 
   const handleLanguageChange = async (newLanguage: 'javascript' | 'python') => {
     if (!sessionId) return;
-    
-    await mockApi.changeLanguage(sessionId, newLanguage);
+    await api.changeLanguage(sessionId, newLanguage);
+    setLanguage(newLanguage);
   };
 
   if (!currentSession || !currentUser) {
@@ -104,7 +100,7 @@ const InterviewSession = () => {
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Language:</span>
             <Select
-              value={currentSession.language}
+              value={language}
               onValueChange={(value) => handleLanguageChange(value as 'javascript' | 'python')}
             >
               <SelectTrigger className="w-32">
