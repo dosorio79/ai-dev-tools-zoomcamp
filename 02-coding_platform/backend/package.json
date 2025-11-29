@@ -3,16 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "type": "commonjs",
-"scripts": {
-  "dev": "nodemon src/server.ts",
-  "build": "tsc",
-  "start": "node dist/server.js",
-  "test": "vitest --run"
-},
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "vitest --run"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "socket.io": "^4.8.1",
     "uuid": "^13.0.0",
     "ws": "^8.13.0"
   },
