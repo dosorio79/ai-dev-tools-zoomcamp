@@ -1,0 +1,289 @@
+openapi: 3.1.0
+info:
+  title: CodeCollab Interview Platform API
+  version: 1.0.0
+  description: |
+    Backend API for the CodeCollab real-time collaborative coding interview platform.
+    This API mirrors the behavior of the frontend mockApi.ts and supports:
+
+    - Creating a coding session
+    - Joining a session
+    - Listing session users
+    - Updating code in real time
+    - Changing programming language
+    - Executing code (mocked or real)
+    - Leaving a session
+    - Real-time collaboration events via WebSocket
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /sessions:
+    post:
+      summary: Create a new coding session
+      operationId: createSession
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language:
+                  $ref: "#/components/schemas/Language"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "400":
+          description: Invalid request
+
+  /sessions/{sessionId}:
+    get:
+      summary: Get session details
+      operationId: getSession
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Session retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "404":
+          description: Session not found
+
+  /sessions/{sessionId}/join:
+    post:
+      summary: Join an existing session
+      operationId: joinSession
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+              required: [userName]
+      responses:
+        "200":
+          description: Joined session
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: "#/components/schemas/Session"
+                  user:
+                    $ref: "#/components/schemas/User"
+        "404":
+          description: Session not found
+
+  /sessions/{sessionId}/users:
+    get:
+      summary: List all users in a session
+      operationId: getSessionUsers
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: User list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /sessions/{sessionId}/code:
+    put:
+      summary: Update code inside the session
+      operationId: updateCode
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+              required: [code]
+      responses:
+        "204":
+          description: Code updated
+        "404":
+          description: Session not found
+
+  /sessions/{sessionId}/language:
+    put:
+      summary: Change programming language
+      operationId: changeLanguage
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                language:
+                  $ref: "#/components/schemas/Language"
+              required: [language]
+      responses:
+        "204":
+          description: Language updated
+        "404":
+          description: Session not found
+
+  /sessions/{sessionId}/execute:
+    post:
+      summary: Execute code (mock execution for now)
+      operationId: executeCode
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                language:
+                  $ref: "#/components/schemas/Language"
+              required: [code, language]
+      responses:
+        "200":
+          description: Execution result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionResult"
+        "404":
+          description: Session not found
+
+  /sessions/{sessionId}/leave:
+    post:
+      summary: Leave a session
+      operationId: leaveSession
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+              required: [userId]
+      responses:
+        "204":
+          description: Left session
+        "404":
+          description: Session not found
+
+  /ws/{sessionId}:
+    get:
+      summary: WebSocket connection for real-time collaboration
+      description: |
+        WebSocket channel used for:
+
+        - Code updates
+        - User join/leave events
+        - Language changes
+        - Execution results
+
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+
+      responses:
+        "101":
+          description: Switching to WebSocket protocol
+
+      x-websocket-message:
+        $ref: "#/components/schemas/WebSocketMessage"
+
+components:
+  parameters:
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    Language:
+      type: string
+      enum: [javascript, python]
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        code:
+          type: string
+        language:
+          $ref: "#/components/schemas/Language"
+      required: [id, createdAt, code, language]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+      required: [id, name, color]
+
+    ExecutionResult:
+      type: object
+      properties:
+        output:
+          type: string
+        error:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+      required: [output, timestamp]
+
+    WebSocketMessage:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - code_change
+            - user_joined
+            - user_left
+            - language_change
+            - execution_result
+        payload:
+          description: Event payload (varies by message type)
+      required: [type, payload]
