@@ -1,48 +1,24 @@
 import { nanoid } from 'nanoid';
-
-// Types
-export interface Session {
-  id: string;
-  createdAt: Date;
-  code: string;
-  language: 'javascript' | 'python';
-}
-
-export interface User {
-  id: string;
-  name: string;
-  color: string;
-}
-
-export interface ExecutionResult {
-  output: string;
-  error?: string;
-  timestamp: Date;
-}
-
-export interface WebSocketMessage {
-  type: 'code_change' | 'user_joined' | 'user_left' | 'execution_result' | 'language_change';
-  payload: any;
-}
+import { Session, User, ExecutionResult, Language, WebSocketEvent } from './client';
 
 // Mock data storage
 const sessions = new Map<string, Session>();
 const sessionUsers = new Map<string, User[]>();
 
 // Mock WebSocket event listeners
-type EventListener = (message: WebSocketMessage) => void;
+type EventListener = (message: WebSocketEvent) => void;
 const eventListeners = new Map<string, EventListener[]>();
 
 // Mock API functions
 export const mockApi = {
   // Create a new session
-  createSession: async (language: 'javascript' | 'python' = 'javascript'): Promise<Session> => {
+  createSession: async (language: Language = 'javascript'): Promise<Session> => {
     await delay(300); // Simulate network latency
     
     const session: Session = {
       id: nanoid(10),
-      createdAt: new Date(),
-      code: getDefaultCode(language),
+      createdAt: new Date().toISOString(),
+      code: '',
       language,
     };
     
@@ -75,7 +51,7 @@ export const mockApi = {
     setTimeout(() => {
       mockWebSocket.emit(sessionId, {
         type: 'user_joined',
-        payload: user,
+        payload: { user },
       });
     }, 100);
 
@@ -107,7 +83,7 @@ export const mockApi = {
   },
 
   // Change language
-  changeLanguage: async (sessionId: string, language: 'javascript' | 'python'): Promise<void> => {
+  changeLanguage: async (sessionId: string, language: Language): Promise<void> => {
     await delay(100);
     
     const session = sessions.get(sessionId);
@@ -118,20 +94,21 @@ export const mockApi = {
       setTimeout(() => {
         mockWebSocket.emit(sessionId, {
           type: 'language_change',
-          payload: { language, code: session.code },
+          payload: { language },
         });
       }, 50);
     }
   },
 
   // Execute code (mock execution)
-  executeCode: async (code: string, language: 'javascript' | 'python'): Promise<ExecutionResult> => {
+  executeCode: async (code: string, language: Language): Promise<ExecutionResult> => {
     await delay(800); // Simulate execution time
     
     // Mock execution results based on code content
     const result: ExecutionResult = {
       output: mockExecute(code, language),
-      timestamp: new Date(),
+      error: null,
+      timestamp: new Date().toISOString(),
     };
 
     return result;
@@ -149,7 +126,7 @@ export const mockApi = {
       setTimeout(() => {
         mockWebSocket.emit(sessionId, {
           type: 'user_left',
-          payload: { userId },
+          payload: { user },
         });
       }, 50);
     }
@@ -175,7 +152,7 @@ export const mockWebSocket = {
     };
   },
 
-  emit: (sessionId: string, message: WebSocketMessage) => {
+  emit: (sessionId: string, message: WebSocketEvent) => {
     const listeners = eventListeners.get(sessionId) || [];
     listeners.forEach(listener => listener(message));
   },
@@ -201,7 +178,7 @@ export const mockWebSocket = {
         users.push(newUser);
         mockWebSocket.emit(sessionId, {
           type: 'user_joined',
-          payload: newUser,
+          payload: { user: newUser },
         });
       }
     }, 5000);
@@ -223,7 +200,7 @@ function getRandomColor(): string {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-function getDefaultCode(language: 'javascript' | 'python'): string {
+function getDefaultCode(language: Language): string {
   if (language === 'javascript') {
     return `// Welcome to CodeCollab Interview!
 // Write your JavaScript solution here

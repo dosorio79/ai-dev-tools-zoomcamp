@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useInterviewStore } from '@/store/interviewStore';
-import { User } from '@/api/client';
+import { User } from '@/api';
 
 export const UserPresence = () => {
   const { users, currentUser } = useInterviewStore();

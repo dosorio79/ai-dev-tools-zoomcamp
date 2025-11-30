@@ -1,36 +1,54 @@
 # Collaborative Coding Interview Platform
 
-This repository is the workspace for the AI Dev Tools Zoomcamp Module 2 homework: a real-time collaborative interview arena inspired by CoderPad/CodeSignal/Leetcode. The frontend is assembled with React + Vite while the backend is expected to host an Express + WebSocket server backed by an in-memory session store. All execution happens safely in the browser (JS via a sandboxed iframe, Python through Pyodide).
+Real-time coding interview arena (CoderPad/Codesignal style) built for AI Dev Tools Zoomcamp. React + Vite frontend, Express + WebSocket backend, in-memory session store, and browser-only execution (JS sandbox, Python via Pyodide).
 
 ## Repository layout
-- `frontend/` – Vite + React UI generated with Lovable; includes the collaborative editor, run panel, participant list, and local WASM runners.
-- `backend/` – placeholder for the Express + WebSocket server that will expose `/session` REST routes and `/ws/<sessionId>` sockets and keep sessions in memory.
-- `docs/` – living requirements, system design, deployment, REST + WebSocket API contracts, and runtime safety notes for the project.
-- `README.md` – this file.
-- `AGENTS.md` – guidance for future contributor/AI agents who continue this work.
-- `.gitignore` – node/Vite-friendly ignore rules.
+- `frontend/` – Vite + React UI: collaborative editor, run panel, participant presence, WASM runners.
+- `backend/` – Express + WS server implementing the OpenAPI spec (`openapi/openapi.yaml`), including `/sessions` REST and `/ws/{sessionId}`.
+- `docs/` – source of truth for requirements, APIs, system design, runtime sandboxing, and deployment.
+- `AGENTS.md` – contributor/AI playbook; start here when picking up work.
+- `openapi/` – OpenAPI definition consumed by backend/frontend.
+- `package.json` (root) – convenience dev scripts to run frontend+backend together with `concurrently`.
 
-## Documentation highlights
-- `docs/OVERVIEW.md` summarizes the goal and architecture.
-- `docs/REQUIREMENT.md` lists functional/technical expectations.
-- `docs/SYSTEM_DESIGN.md` sketches the frontend/backend flow and WebSocket data model.
-- `docs/API_REST.md` + `docs/API_WEBSOCKETS.md` define the HTTP and WS contracts to implement.
-- `docs/DEPLOYMENT.md` explains the local Docker Compose workflow and the single-container Render deployment.
-- `docs/RUNTIME_WASM.md` explains how JS and Python run inside browser sandboxes.
+## Quick start (dev)
+```bash
+# install root tool (concurrently)
+npm install
 
-## Local development (frontend)
-1. `cd frontend`
-2. `npm install`
-3. `npm run dev`
+# install frontend/backend deps
+cd frontend && npm install
+cd ../backend && npm install
 
-Frontend hot-reloads on port 5173 and speaks to the backend over REST on `http://localhost:8000` plus WS on `ws://localhost:8000/ws/<sessionId>`. The current backend is empty, so building that layer is the next implementation milestone.
+# run both servers in parallel from repo root
+npm run dev
+```
+- Frontend: http://localhost:5173 (Vite dev server)
+- Backend: http://localhost:3000 for REST, ws://localhost:3000/ws/{sessionId} for WebSocket
+- Switch to mock API in the frontend with `VITE_USE_MOCK_API=true` (defaults to real backend).
 
-## Bringing the backend online
-- Implement the REST endpoints and WebSocket relay described in `docs/API_REST.md` and `docs/API_WEBSOCKETS.md`.
-- Maintain the in-memory session store outlined in `docs/SYSTEM_DESIGN.md`.
-- Bundle frontend/build output into the backend (see `docs/DEPLOYMENT.md`) for multi-service local work and a single-container Render deployment.
+## Backend surface (high level)
+- `POST /sessions` → create session (optional `language`), returns `{ id, createdAt, code, language }`
+- `GET /sessions/{sessionId}` → fetch session
+- `POST /sessions/{sessionId}/join` → join with `userName`, returns `{ session, user }`
+- `GET /sessions/{sessionId}/users` → list users
+- `PUT /sessions/{sessionId}/code` → update code (204)
+- `PUT /sessions/{sessionId}/language` → change language (204)
+- `POST /sessions/{sessionId}/execute` → mock execution result
+- `POST /sessions/{sessionId}/leave` → leave session (204)
+- WebSocket: `/ws/{sessionId}` emits `code_change`, `user_joined`, `user_left`, `language_change`, `execution_result`
 
-## Next steps
-- Flesh out the `backend/` service (Express + WebSocket logic, session store).
-- Wire up docker+deployment scripts if you want to match the documented workflow.
-- Keep the docs in sync as the implementation evolves.
+## Frontend wiring
+- Uses the real backend client by default (`src/api/index.ts`), with mock API fallback for tests/demos.
+- State managed via Zustand (`src/store/interviewStore.ts`).
+- WebSocket events update code, presence, and language in real time.
+
+## Docs to read first
+- `docs/SYSTEM_DESIGN.md` – architecture and flows.
+- `docs/API_REST.md` + `docs/API_WEBSOCKETS.md` – API contracts.
+- `docs/RUNTIME_WASM.md` – browser execution model.
+- `docs/DEPLOYMENT.md` – local Docker Compose and Render single-container guidance.
+
+## Notes / gaps
+- Session data is in-memory only; restart clears state.
+- Execution is mocked; real sandbox integration would go in the backend or browser runners.
+- Keep docs updated when behavior changes; they are the source of truth.

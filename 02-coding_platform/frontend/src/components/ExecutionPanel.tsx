@@ -2,22 +2,21 @@ import { Play, Terminal, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useInterviewStore } from '@/store/interviewStore';
-import { api } from '@/api/client';
 import { useToast } from '@/hooks/use-toast';
+import { executeLocally } from '@/lib/runtime';
 
 export const ExecutionPanel = () => {
   const { code, language, isExecuting, executionResult, setIsExecuting, setExecutionResult } = useInterviewStore();
-  const sessionId = useInterviewStore.getState().currentSession?.id;
   const { toast } = useToast();
 
   const handleExecute = async () => {
-    if (isExecuting || !sessionId) return;
+    if (isExecuting) return;
 
     setIsExecuting(true);
     setExecutionResult(null);
 
     try {
-      const result = await api.executeCode(sessionId, code, language);
+      const result = await executeLocally(language, code);
       setExecutionResult(result);
       
       if (result.error) {

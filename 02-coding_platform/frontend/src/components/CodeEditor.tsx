@@ -1,6 +1,6 @@
 import Editor from '@monaco-editor/react';
 import { useInterviewStore } from '@/store/interviewStore';
-import { api } from '@/api/client';
+import { api } from '@/api';
 
 export const CodeEditor = () => {
   const { code, language, setCode } = useInterviewStore();

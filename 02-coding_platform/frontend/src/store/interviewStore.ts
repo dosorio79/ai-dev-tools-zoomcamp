@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Session, User, ExecutionResult, Language } from '@/api/client';
+import { Session, User, ExecutionResult, Language } from '@/api';
 
 interface InterviewStore {
   // Session state

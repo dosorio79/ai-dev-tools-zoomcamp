@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CodeEditor } from '@/components/CodeEditor';
 import { UserPresence } from '@/components/UserPresence';
 import { ExecutionPanel } from '@/components/ExecutionPanel';
-import { api, connectSessionWebSocket, WebSocketEvent } from '@/api/client';
+import { api, connectSessionWebSocket, WebSocketEvent } from '@/api';
 import { useInterviewStore } from '@/store/interviewStore';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';

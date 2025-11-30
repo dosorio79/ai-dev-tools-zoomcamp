@@ -1,3 +1,7 @@
+// Load environment variables FIRST
+import dotenv from "dotenv";
+dotenv.config();
+
 import { createServer } from "http";
 import app from "./app";
 import { initWebSocket } from "./websocket/ws";

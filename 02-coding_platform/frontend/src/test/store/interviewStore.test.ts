@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useInterviewStore } from '@/store/interviewStore';
-import { Session, User } from '@/api/client';
+import { Session, User } from '@/api';
 
 describe('Interview Store', () => {
   beforeEach(() => {
