@@ -101,15 +101,15 @@ export const mockApi = {
   },
 
   // Execute code (mock execution)
-  executeCode: async (code: string, language: Language): Promise<ExecutionResult> => {
-    await delay(800); // Simulate execution time
-    
-    // Mock execution results based on code content
-    const result: ExecutionResult = {
-      output: mockExecute(code, language),
-      error: null,
-      timestamp: new Date().toISOString(),
-    };
+  executeCode: async (sessionId: string, result: ExecutionResult): Promise<ExecutionResult> => {
+    await delay(200); // Simulate network time
+
+    setTimeout(() => {
+      mockWebSocket.emit(sessionId, {
+        type: 'execution_result',
+        payload: result,
+      });
+    }, 25);
 
     return result;
   },

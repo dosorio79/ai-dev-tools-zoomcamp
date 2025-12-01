@@ -93,11 +93,11 @@ export const api = {
     return handleResponse<void>(res);
   },
 
-  executeCode: async (sessionId: string, code: string, language: Language): Promise<ExecutionResult> => {
+  executeCode: async (sessionId: string, result: ExecutionResult): Promise<ExecutionResult> => {
     const res = await fetch(buildUrl(`/sessions/${sessionId}/execute`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, language })
+      body: JSON.stringify(result)
     });
     return handleResponse<ExecutionResult>(res);
   },
@@ -118,6 +118,7 @@ export const connectSessionWebSocket = (
   onConnected?: (connected: boolean) => void
 ) => {
   const ws = new WebSocket(`${WS_BASE_URL.replace(/\/$/, "")}/ws/${sessionId}`);
+  const pending: string[] = [];
 
   ws.onopen = () => onConnected?.(true);
   ws.onclose = () => onConnected?.(false);
@@ -131,5 +132,29 @@ export const connectSessionWebSocket = (
     }
   };
 
-  return () => ws.close();
+  const send = (event: WebSocketEvent) => {
+    const payload = JSON.stringify(event);
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(payload);
+      return;
+    }
+    if (ws.readyState === WebSocket.CONNECTING) {
+      pending.push(payload);
+      ws.addEventListener(
+        "open",
+        () => {
+          while (pending.length) {
+            const next = pending.shift();
+            if (next) ws.send(next);
+          }
+        },
+        { once: true }
+      );
+    }
+  };
+
+  return {
+    disconnect: () => ws.close(),
+    send
+  };
 };

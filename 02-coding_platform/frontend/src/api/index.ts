@@ -32,9 +32,12 @@ export const connectSessionWebSocket = useMock
       onMessage: (event: any) => void,
       onConnected?: (connected: boolean) => void
     ) => {
-      const cleanup = mockWebSocket.connect(sessionId, onMessage);
+      const disconnect = mockWebSocket.connect(sessionId, onMessage);
       onConnected?.(true);
-      return cleanup;
+      return {
+        disconnect,
+        send: (event: any) => mockWebSocket.emit(sessionId, event)
+      };
     }
   : realConnectSessionWebSocket;
 

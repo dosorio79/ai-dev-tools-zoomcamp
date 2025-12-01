@@ -4,9 +4,11 @@ import { Card } from '@/components/ui/card';
 import { useInterviewStore } from '@/store/interviewStore';
 import { useToast } from '@/hooks/use-toast';
 import { executeLocally } from '@/lib/runtime';
+import { api } from '@/api';
 
 export const ExecutionPanel = () => {
-  const { code, language, isExecuting, executionResult, setIsExecuting, setExecutionResult } = useInterviewStore();
+  const { currentSession, code, language, isExecuting, executionResult, wsSend, setIsExecuting, setExecutionResult } =
+    useInterviewStore();
   const { toast } = useToast();
 
   const handleExecute = async () => {
@@ -18,6 +20,11 @@ export const ExecutionPanel = () => {
     try {
       const result = await executeLocally(language, code);
       setExecutionResult(result);
+      wsSend?.({ type: 'execution_result', payload: result });
+      if (currentSession) {
+        // Relay to backend so other participants receive the result even if WS send is dropped
+        api.executeCode(currentSession.id, result).catch(() => {});
+      }
       
       if (result.error) {
         toast({

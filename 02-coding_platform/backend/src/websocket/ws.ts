@@ -1,7 +1,7 @@
 import { WebSocket, WebSocketServer } from "ws";
 import { Server as HTTPServer, IncomingMessage } from "http";
 import { sessionStore } from "../store/sessionStore";
-import { WebSocketMessage } from "../types";
+import { ExecutionResult, WebSocketMessage } from "../types";
 
 type SessionWebSocket = WebSocket & { sessionId?: string };
 
@@ -30,6 +30,12 @@ const registerClient = (sessionId: string, ws: WebSocket) => {
     }
   });
 };
+
+const isExecutionResult = (payload: any): payload is ExecutionResult =>
+  payload &&
+  typeof payload.output === "string" &&
+  (payload.error === null || typeof payload.error === "string") &&
+  typeof payload.timestamp === "string";
 
 const getSessionIdFromUrl = (url?: string) => {
   if (!url) return null;
@@ -65,8 +71,15 @@ export const initWebSocket = (httpServer: HTTPServer) => {
       return;
     }
     registerClient(sessionId, ws);
-    ws.on("message", () => {
-      // Ignored incoming traffic; REST routes drive session events.
+    ws.on("message", (raw) => {
+      try {
+        const message = JSON.parse(raw.toString()) as WebSocketMessage;
+        if (message.type === "execution_result" && isExecutionResult(message.payload)) {
+          broadcastSessionMessage(sessionId, message);
+        }
+      } catch {
+        // Ignore malformed client messages
+      }
     });
   });
 };

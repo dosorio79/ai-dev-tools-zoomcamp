@@ -53,7 +53,7 @@ describe("Session API", () => {
     await request(app).get("/sessions/does-not-exist/users").expect(404);
     await request(app).put("/sessions/does-not-exist/code").send({ code: "x" }).expect(404);
     await request(app).put("/sessions/does-not-exist/language").send({ language: "python" }).expect(404);
-    await request(app).post("/sessions/does-not-exist/execute").send({ code: "x", language: "python" }).expect(404);
+    await request(app).post("/sessions/does-not-exist/execute").send({ output: "x" }).expect(404);
     await request(app).post("/sessions/does-not-exist/leave").send({ userId: "abc" }).expect(404);
   });
 
@@ -88,21 +88,24 @@ describe("Session API", () => {
     expect(res.status).toBe(400);
   });
 
-  it("requires code and language on execute", async () => {
+  it("requires output on execute broadcast", async () => {
     const session = await request(app).post("/sessions").send({});
-    await request(app).post(`/sessions/${session.body.id}/execute`).send({ code: "print('hi')" }).expect(400);
-    await request(app).post(`/sessions/${session.body.id}/execute`).send({ language: "python" }).expect(400);
+    await request(app).post(`/sessions/${session.body.id}/execute`).send({}).expect(400);
+    await request(app)
+      .post(`/sessions/${session.body.id}/execute`)
+      .send({ output: "ok", error: 123 })
+      .expect(400);
   });
 
-  it("executes code for a session", async () => {
+  it("relays browser execution result for a session", async () => {
     const session = await request(app).post("/sessions").send({});
     const { id } = session.body;
 
     const execRes = await request(app)
       .post(`/sessions/${id}/execute`)
-      .send({ code: "print('hi')", language: "python" });
+      .send({ output: "hi\n", error: null, timestamp: "2024-01-01T00:00:00.000Z" });
     expect(execRes.status).toBe(200);
-    expect(execRes.body.output).toContain("Mock");
-    expect(execRes.body.timestamp).toBeDefined();
+    expect(execRes.body.output).toBe("hi\n");
+    expect(execRes.body.timestamp).toBe("2024-01-01T00:00:00.000Z");
   });
 });

@@ -21,7 +21,9 @@ const InterviewSession = () => {
     setLanguage,
     addUser,
     removeUser,
-    setIsConnected 
+    setIsConnected,
+    setExecutionResult,
+    setWsSend, 
   } = useInterviewStore();
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const InterviewSession = () => {
       return;
     }
 
-    const disconnect = connectSessionWebSocket(
+    const { disconnect, send } = connectSessionWebSocket(
       sessionId,
       (message: WebSocketEvent) => {
         switch (message.type) {
@@ -59,15 +61,17 @@ const InterviewSession = () => {
             });
             break;
           case 'execution_result':
-            // handled in ExecutionPanel via direct API call; ignore broadcasts here
+            setExecutionResult(message.payload);
             break;
         }
       },
       (connected) => setIsConnected(connected)
     );
+    setWsSend(() => send);
 
     return () => {
       disconnect();
+      setWsSend(null);
       setIsConnected(false);
       if (currentUser) {
         api.leaveSession(sessionId, currentUser.id).catch(() => {});

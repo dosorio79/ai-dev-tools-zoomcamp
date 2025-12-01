@@ -69,20 +69,18 @@ describe('Mock API', () => {
   });
 
   describe('executeCode', () => {
-    it('should execute JavaScript code and return output', async () => {
-      const code = 'console.log("Hello World");';
-      const result = await mockApi.executeCode(code, 'javascript');
+    it('should relay an execution result', async () => {
+      const executionResult = {
+        output: 'Hello World',
+        error: null,
+        timestamp: new Date().toISOString(),
+      };
+
+      const result = await mockApi.executeCode('session-1', executionResult);
       
       expect(result.output).toContain('Hello World');
       expect(typeof result.timestamp).toBe('string');
       expect(Date.parse(result.timestamp)).not.toBeNaN();
-    });
-
-    it('should execute Python code and return output', async () => {
-      const code = 'print("Hello World")';
-      const result = await mockApi.executeCode(code, 'python');
-      
-      expect(result.output).toContain('Hello World');
     });
   });
 

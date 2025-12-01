@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Session, User, ExecutionResult, Language } from '@/api';
+import { Session, User, ExecutionResult, Language, WebSocketEvent } from '@/api';
 
 interface InterviewStore {
   // Session state
@@ -14,6 +14,7 @@ interface InterviewStore {
   // Execution state
   isExecuting: boolean;
   executionResult: ExecutionResult | null;
+  wsSend: ((event: WebSocketEvent) => void) | null;
   
   // Connection state
   isConnected: boolean;
@@ -28,6 +29,7 @@ interface InterviewStore {
   setLanguage: (language: 'javascript' | 'python') => void;
   setIsExecuting: (isExecuting: boolean) => void;
   setExecutionResult: (result: ExecutionResult | null) => void;
+  setWsSend: (sender: ((event: WebSocketEvent) => void) | null) => void;
   setIsConnected: (isConnected: boolean) => void;
   reset: () => void;
 }
@@ -41,6 +43,7 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
   language: 'javascript',
   isExecuting: false,
   executionResult: null,
+  wsSend: null,
   isConnected: false,
 
   // Actions
@@ -69,6 +72,8 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
   setIsExecuting: (isExecuting) => set({ isExecuting }),
   
   setExecutionResult: (result) => set({ executionResult: result }),
+
+  setWsSend: (sender) => set({ wsSend: sender }),
   
   setIsConnected: (isConnected) => set({ isConnected }),
   
@@ -80,6 +85,7 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
     language: 'javascript',
     isExecuting: false,
     executionResult: null,
+    wsSend: null,
     isConnected: false,
   }),
 }));

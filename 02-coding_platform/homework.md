@@ -1,4 +1,4 @@
-## Prompts
+# 1. Prompts
 
 STEP 1
 Create a frontend UI for a real-time collaborative coding interview platform.
@@ -53,3 +53,8 @@ Do NOT invent new endpoints.
 Do NOT modify the OpenAPI spec.
 
 
+# 2. Run integration test
+npm run test
+
+# 3. Run concurrently
+"dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
