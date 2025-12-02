@@ -121,10 +121,10 @@ At minimum, the system should support:
 - [x] Real-time collaborative editing  
 - [x] Syntax highlighting for JS + Python  
 - [x] In-browser execution (JS + Python via WASM)  
-- [ ] Backend REST API implementation  
-- [ ] WebSocket backend implementation  
-- [ ] Integration tests  
-- [ ] Concurrent dev runner (npm + concurrently)  
+- [x] Backend REST API implementation  
+- [x] WebSocket backend implementation  
+- [x] Integration tests  
+- [x] Concurrent dev runner (npm + concurrently)  
 - [ ] Docker container  
 - [ ] Deployment  
 
