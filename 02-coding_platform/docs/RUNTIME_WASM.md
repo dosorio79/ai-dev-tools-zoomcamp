@@ -184,3 +184,21 @@ Supports Python via WASM: yes
 No backend execution: yes  
 Real-time sync via WebSockets: yes  
 Secure sandbox: yes  
+
+============================================================
+11. Configuring Pyodide Source
+============================================================
+
+The frontend loads Pyodide from a configurable base URL. By default it uses:
+
+```
+VITE_PYODIDE_BASE=https://cdn.jsdelivr.net/pyodide/v0.25.1/full/
+```
+
+To work offline, mirror the Pyodide `full` folder locally (e.g., under `frontend/public/pyodide/`) and set:
+
+```
+VITE_PYODIDE_BASE=/pyodide/
+```
+
+Ensure the path ends with a trailing slash and restart the frontend dev server after changes.

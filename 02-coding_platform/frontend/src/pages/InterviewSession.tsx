@@ -4,10 +4,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CodeEditor } from '@/components/CodeEditor';
 import { UserPresence } from '@/components/UserPresence';
 import { ExecutionPanel } from '@/components/ExecutionPanel';
-import { api, connectSessionWebSocket, WebSocketEvent } from '@/api';
+import { api, connectSessionWebSocket, ExecutionResult, WebSocketEvent } from '@/api';
 import { useInterviewStore } from '@/store/interviewStore';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
+import { preloadPyodide } from '@/lib/runtime';
+
+const normalizeResult = (payload: ExecutionResult) => ({
+  ...payload,
+  output: payload?.output && payload.output.trim().length > 0 ? payload.output : 'No output captured.'
+});
 
 const InterviewSession = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -61,13 +67,13 @@ const InterviewSession = () => {
             });
             break;
           case 'execution_result':
-            setExecutionResult(message.payload);
+            setExecutionResult(normalizeResult(message.payload));
             break;
         }
       },
       (connected) => setIsConnected(connected)
     );
-    setWsSend(() => send);
+    setWsSend(send);
 
     return () => {
       disconnect();
@@ -77,7 +83,19 @@ const InterviewSession = () => {
         api.leaveSession(sessionId, currentUser.id).catch(() => {});
       }
     };
-  }, [sessionId, currentSession, currentUser, navigate]);
+  }, [sessionId, currentSession, currentUser, navigate, addUser, removeUser, setCode, setIsConnected, setWsSend, toast, setLanguage, setExecutionResult]);
+
+  useEffect(() => {
+    if (language === 'python') {
+      preloadPyodide().catch((error) => {
+        toast({
+          title: 'Pyodide failed to load',
+          description: String(error),
+          variant: 'destructive',
+        });
+      });
+    }
+  }, [language, toast]);
 
   const handleLanguageChange = async (newLanguage: 'javascript' | 'python') => {
     if (!sessionId) return;

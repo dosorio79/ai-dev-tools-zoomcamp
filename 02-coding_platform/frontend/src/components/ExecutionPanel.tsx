@@ -6,6 +6,11 @@ import { useToast } from '@/hooks/use-toast';
 import { executeLocally } from '@/lib/runtime';
 import { api } from '@/api';
 
+const withDefaultOutput = (result: ReturnType<typeof executeLocally> extends Promise<infer R> ? R : never) => ({
+  ...result,
+  output: result.output && result.output.trim().length > 0 ? result.output : 'No output captured.'
+});
+
 export const ExecutionPanel = () => {
   const { currentSession, code, language, isExecuting, executionResult, wsSend, setIsExecuting, setExecutionResult } =
     useInterviewStore();
@@ -19,17 +24,18 @@ export const ExecutionPanel = () => {
 
     try {
       const result = await executeLocally(language, code);
-      setExecutionResult(result);
-      wsSend?.({ type: 'execution_result', payload: result });
+      const normalized = withDefaultOutput(result);
+      setExecutionResult(normalized);
+      wsSend?.({ type: 'execution_result', payload: normalized });
       if (currentSession) {
         // Relay to backend so other participants receive the result even if WS send is dropped
-        api.executeCode(currentSession.id, result).catch(() => {});
+        api.executeCode(currentSession.id, normalized).catch(() => {});
       }
       
-      if (result.error) {
+      if (normalized.error) {
         toast({
           title: 'Execution Error',
-          description: result.error,
+          description: normalized.error,
           variant: 'destructive',
         });
       } else {

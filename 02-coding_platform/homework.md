@@ -58,3 +58,8 @@ npm run test
 
 # 3. Run concurrently
 "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+
+# 4. Syntax highligh
+
+# 5. Code execution
+Compiling python to WASM

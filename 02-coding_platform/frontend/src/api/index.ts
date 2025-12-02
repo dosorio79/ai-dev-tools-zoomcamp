@@ -29,14 +29,14 @@ export const api = useMock ? mockApi : realApi;
 export const connectSessionWebSocket = useMock
   ? (
       sessionId: string,
-      onMessage: (event: any) => void,
+      onMessage: (event: WebSocketEvent) => void,
       onConnected?: (connected: boolean) => void
     ) => {
       const disconnect = mockWebSocket.connect(sessionId, onMessage);
       onConnected?.(true);
       return {
         disconnect,
-        send: (event: any) => mockWebSocket.emit(sessionId, event)
+        send: (event: WebSocketEvent) => mockWebSocket.emit(sessionId, event)
       };
     }
   : realConnectSessionWebSocket;

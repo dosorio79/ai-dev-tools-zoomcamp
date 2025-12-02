@@ -15,4 +15,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    // Loaded from CDN; avoid Vite trying to prebundle it
+    exclude: ["pyodide"],
+  },
+  assetsInclude: ["**/*.wasm"],
 }));
