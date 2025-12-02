@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CodeEditor } from '@/components/CodeEditor';
@@ -9,6 +9,10 @@ import { useInterviewStore } from '@/store/interviewStore';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { preloadPyodide } from '@/lib/runtime';
+import { Button } from '@/components/ui/button';
+import { Copy, Share } from 'lucide-react';
+import { copyToClipboard } from '@/lib/utils';
+import { ShareSessionDialog } from '@/components/ShareSessionDialog';
 
 const normalizeResult = (payload: ExecutionResult) => ({
   ...payload,
@@ -31,6 +35,7 @@ const InterviewSession = () => {
     setExecutionResult,
     setWsSend, 
   } = useInterviewStore();
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   useEffect(() => {
     if (!sessionId || !currentSession || !currentUser) {
@@ -103,6 +108,18 @@ const InterviewSession = () => {
     setLanguage(newLanguage);
   };
 
+  const handleCopySessionId = async () => {
+    if (!currentSession) return;
+    const ok = await copyToClipboard(currentSession.id);
+    toast({
+      title: ok ? 'Session ID copied!' : 'Copy failed',
+      description: ok ? undefined : 'Please try again.',
+      variant: ok ? 'default' : 'destructive',
+    });
+  };
+
+  const handleShareSession = () => setIsShareOpen(true);
+
   if (!currentSession || !currentUser) {
     return null;
   }
@@ -120,6 +137,14 @@ const InterviewSession = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={handleCopySessionId}>
+              <Copy className="w-4 h-4" />
+              Copy ID
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2" onClick={handleShareSession}>
+              <Share className="w-4 h-4" />
+              Share
+            </Button>
             <span className="text-sm text-muted-foreground">Language:</span>
             <Select
               value={language}
@@ -151,6 +176,8 @@ const InterviewSession = () => {
           <UserPresence />
         </Card>
       </div>
+
+      <ShareSessionDialog sessionId={currentSession.id} open={isShareOpen} onOpenChange={setIsShareOpen} />
     </div>
   );
 };
