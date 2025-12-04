@@ -146,6 +146,9 @@ WebSockets:
 
 Render automatically switches to `wss://`.
 
+Notes:
+- Backend exposes both `/sessions/*` and `/api/sessions/*`; using `/api` works in both Render (static hosting) and local dev.
+
 =====================================================================
 6. Benefits of This Hybrid Approach
 =====================================================================

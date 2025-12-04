@@ -20,15 +20,19 @@ is transmitted through WebSockets.
 
 For local development:
 
-    ws://localhost:3001/ws/<sessionId>
+    ws://localhost:8000/ws/<sessionId>
 
 For deployment:
 
     wss://<your-deployment>/ws/<sessionId>
 
+Frontend should prefer constructing the URL from the current host to work in both environments:
+
+    new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/<sessionId>`)
+
 ### Example
 
-    ws://localhost:3001/ws/abc123
+    ws://localhost:8000/ws/abc123
 
 Backend should:
 - Accept the WebSocket connection
@@ -254,4 +258,3 @@ If something goes wrong:
 - If the server restarts, the session resets — acceptable for homework.
 - No authentication is required.
 - No code is executed on the server for security.
-

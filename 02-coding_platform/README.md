@@ -1,54 +1,196 @@
-# Collaborative Coding Interview Platform
+# 📘 CodeCollab — Collaborative Coding Interview Platform
 
-Real-time coding interview arena (CoderPad/Codesignal style) built for AI Dev Tools Zoomcamp. React + Vite frontend, Express + WebSocket backend, in-memory session store, and browser-only execution (JS sandbox, Python via Pyodide).
+A modern, real-time coding interview platform inspired by CoderPad & CodeSignal.  
+Built for the **AI Dev Tools Zoomcamp** using:
 
-## Repository layout
-- `frontend/` – Vite + React UI: collaborative editor, run panel, participant presence, WASM runners.
-- `backend/` – Express + WS server implementing the OpenAPI spec (`openapi/openapi.yaml`), including `/sessions` REST and `/ws/{sessionId}`.
-- `docs/` – source of truth for requirements, APIs, system design, runtime sandboxing, and deployment.
-- `AGENTS.md` – contributor/AI playbook; start here when picking up work.
-- `openapi/` – OpenAPI definition consumed by backend/frontend.
-- `package.json` (root) – convenience dev scripts to run frontend+backend together with `concurrently`.
+- ⚛️ React + Vite frontend  
+- 🛰️ Express + WebSockets backend  
+- 🔌 In-browser execution (JS sandbox + Python via Pyodide)  
+- 👥 Live presence & synchronized editing  
 
-## Quick start (dev)
+Fast, lightweight, zero cloud dependencies.
+
+---
+
+## 🚀 Features
+
+- Real-time collaborative code editor  
+- Live user presence (join/leave indicators)  
+- JavaScript execution sandbox (browser)  
+- Python execution via Pyodide (WASM)  
+- WebSocket-driven code + language sync  
+- Shareable session links  
+- Zero backend persistence (ephemeral sessions)
+
+---
+
+## 📁 Repository Structure
+
+```
+02-coding_platform/
+├── frontend/        # Vite + React UI
+├── backend/         # Express API + WebSockets
+├── docs/            # System design, APIs, runtime, deployment
+├── openapi/         # OpenAPI specification
+├── AGENTS.md        # Contributor & AI assistant playbook
+└── package.json     # Dev scripts (root)
+```
+
+### Quick Summary
+
+- **frontend/** → collaborative editor, Pyodide runner, presence, UI  
+- **backend/** → sessions API, WS events, in-memory session store  
+- **docs/** → source of truth for architecture & flows  
+- **openapi/** → REST + WebSocket definitions  
+
+---
+
+## 🧪 Quick Start (Development)
+
+### 1. Install root tooling
 ```bash
-# install root tool (concurrently)
 npm install
+```
 
-# install frontend/backend deps
+### 2. Install service dependencies
+```bash
 cd frontend && npm install
 cd ../backend && npm install
+```
 
-# run both servers in parallel from repo root
+### 3. Run both (via concurrently)
+```bash
 npm run dev
 ```
-- Frontend: http://localhost:5173 (Vite dev server)
-- Backend: http://localhost:3000 for REST, ws://localhost:3000/ws/{sessionId} for WebSocket
-- Switch to mock API in the frontend with `VITE_USE_MOCK_API=true` (defaults to real backend).
 
-## Backend surface (high level)
-- `POST /sessions` → create session (optional `language`), returns `{ id, createdAt, code, language }`
-- `GET /sessions/{sessionId}` → fetch session
-- `POST /sessions/{sessionId}/join` → join with `userName`, returns `{ session, user }`
-- `GET /sessions/{sessionId}/users` → list users
-- `PUT /sessions/{sessionId}/code` → update code (204)
-- `PUT /sessions/{sessionId}/language` → change language (204)
-- `POST /sessions/{sessionId}/execute` → mock execution result
-- `POST /sessions/{sessionId}/leave` → leave session (204)
-- WebSocket: `/ws/{sessionId}` emits `code_change`, `user_joined`, `user_left`, `language_change`, `execution_result`
+### Local URLs
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend (REST) | http://localhost:8000 |
+| WebSockets | ws://localhost:8000/ws/{sessionId} |
 
-## Frontend wiring
-- Uses the real backend client by default (`src/api/index.ts`), with mock API fallback for tests/demos.
-- State managed via Zustand (`src/store/interviewStore.ts`).
-- WebSocket events update code, presence, and language in real time.
+REST base path: `/sessions/*` (or `/api/sessions/*` when frontend is served by the backend).
 
-## Docs to read first
-- `docs/SYSTEM_DESIGN.md` – architecture and flows.
-- `docs/API_REST.md` + `docs/API_WEBSOCKETS.md` – API contracts.
-- `docs/RUNTIME_WASM.md` – browser execution model.
-- `docs/DEPLOYMENT.md` – local Docker Compose and Render single-container guidance.
+Enable mock API mode:
+```bash
+VITE_USE_MOCK_API=true
+```
 
-## Notes / gaps
-- Session data is in-memory only; restart clears state.
-- Execution is mocked; real sandbox integration would go in the backend or browser runners.
-- Keep docs updated when behavior changes; they are the source of truth.
+---
+
+## 🐳 Docker & Deployment
+
+### **Local Development — Docker Compose**
+Runs **two containers**:
+
+- `frontend` → Vite dev server (hot reload)  
+- `backend`  → Node/Express + WS (auto-reload)  
+
+```bash
+docker compose up --build
+```
+
+Uses:
+- `Dockerfile.dev.frontend`
+- `Dockerfile.dev.backend`
+
+---
+
+### **Production — Render Single Container**
+Render prefers a **single Web Service** (free tier friendly).
+
+`Dockerfile.render`:
+
+1. Builds frontend → `/dist`  
+2. Builds backend  
+3. Copies `/dist` into backend `/static`  
+4. Backend serves:
+   - `/` → index.html  
+   - `/api/*` → REST  
+   - `/ws/*` → WebSockets  
+5. Runs on `$PORT` (required by Render)
+
+No CORS.  
+No reverse proxy.  
+One container, one origin.
+
+---
+
+## 🔌 API Overview (High-Level)
+
+### REST
+- `POST /sessions` → create session  
+- `GET /sessions/{id}` → fetch session  
+- `POST /sessions/{id}/join` → join with username  
+- `GET /sessions/{id}/users` → list connected users  
+- `PUT /sessions/{id}/code` → update shared code  
+- `PUT /sessions/{id}/language` → switch language  
+- `POST /sessions/{id}/execute` → mocked execution  
+- `POST /sessions/{id}/leave` → leave session  
+Base paths: `/sessions/*` locally; `/api/sessions/*` when served from the same origin as the frontend.
+
+### WebSocket Events
+- `code_change`  
+- `user_joined` / `user_left`  
+- `language_change`  
+- `execution_result`  
+
+Everything defined in `openapi/openapi.yaml`.
+
+---
+
+## 🧩 Frontend Architecture
+
+- **Zustand** store (`interviewStore.ts`) manages session state  
+- **WebSocket hooks** propagate live events  
+- **Pyodide** loads once → Python runs in your browser  
+- **JS sandbox** executes JavaScript safely  
+- **Editor** updates propagate instantly through WebSockets  
+- **Mock API** available for testing  
+
+---
+
+## 📚 Documentation
+
+Start here:
+
+- `docs/SYSTEM_DESIGN.md` — system architecture  
+- `docs/API_REST.md` + `docs/API_WEBSOCKETS.md` — API contracts  
+- `docs/RUNTIME_WASM.md` — JS sandbox + Pyodide execution  
+- `docs/DEPLOYMENT.md` — Docker Compose + Render deployment  
+
+---
+
+## ⚠️ Known Limitations
+
+- In-memory session store → restart wipes state  
+- Backend does not execute user code; execution stays in the browser (JS sandbox/Pyodide) and results are just relayed  
+- No authentication/roles (by design for the Zoomcamp)  
+- Not intended as a multi-tenant production SaaS  
+
+---
+
+## 🤝 Contributing
+
+Read:
+
+```
+AGENTS.md
+```
+
+Includes:
+- task boundaries  
+- internal architecture rules  
+- AI-assistant coding patterns  
+- file placement conventions  
+
+---
+
+## 📄 License
+
+MIT License (or project default).
+
+---
+
+Made with ❤️ for AI Dev Tools Zoomcamp.

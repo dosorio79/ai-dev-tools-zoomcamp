@@ -60,6 +60,8 @@ npm run test
 "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
 
 # 4. Syntax highligh
+The app uses Monaco via the @monaco-editor/react package for syntax highlighting.
 
 # 5. Code execution
-Compiling python to WASM
+JavaScript: runs inside a dynamically created sandboxed <iframe> (no DOM/cookies/storage). The iframe overrides console.log to capture output and returns result/error via postMessage. No extra package needed.
+Python: uses Pyodide (CPython WASM) loaded from the CDN https://cdn.jsdelivr.net/pyodide/v0.25.1/full/

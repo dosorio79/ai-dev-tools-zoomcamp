@@ -26,10 +26,12 @@ export type WebSocketEvent =
   | { type: "language_change"; payload: { language: Language } }
   | { type: "execution_result"; payload: ExecutionResult };
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:3000";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api";
 const WS_BASE_URL =
   (import.meta.env.VITE_WS_BASE_URL as string | undefined) ??
-  API_BASE_URL.replace(/^http/, "ws");
+  (typeof window !== "undefined"
+    ? `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`
+    : "ws://localhost");
 
 const buildUrl = (path: string) => `${API_BASE_URL.replace(/\/$/, "")}${path}`;
 

@@ -23,7 +23,7 @@ npm test
 npm run dev
 ```
 
-Server defaults to `PORT=3000` to match the OpenAPI server URL. REST routes mount under `/sessions`, and WebSocket upgrades live at `/ws/{sessionId}`.
+Server defaults to `PORT=8000` (overridable via `PORT`, e.g., Render provides this). REST routes mount under `/sessions` (with `/api/sessions` available for production/static hosting), and WebSocket upgrades live at `/ws/{sessionId}`.
 
 ## API (high level)
 - `POST /sessions` – create session (optional `language`), returns Session (id, createdAt, code, language).

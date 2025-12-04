@@ -12,13 +12,14 @@ No authentication or database is required.
 
 For local development:
 
-    http://localhost:3001
+    http://localhost:8000
 
 For deployment:
 
     https://<your-deployment>/api
 
 (If you choose to prefix with `/api`, all endpoints below use that prefix.)
+The backend currently exposes both `/sessions/*` and `/api/sessions/*`; frontend clients should prefer relative `/api` paths when served from the same origin.
 
 ---
 
