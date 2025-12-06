@@ -1,26 +1,47 @@
+# ---------- FRONTEND BUILD ----------
 FROM node:20-alpine AS frontend-build
 WORKDIR /app/frontend
+
+# Install pinned dependencies and build Vite assets.
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm ci
 COPY frontend ./
 RUN npm run build
 
+# ---------- BACKEND BUILD ----------
 FROM node:20-alpine AS backend-build
 WORKDIR /app/backend
+
 COPY backend/package*.json ./
-RUN npm install
+RUN npm ci
 COPY backend ./
-RUN npm run build
+RUN npm run build   # emits /dist
 
-FROM node:20-alpine
+# ---------- BACKEND PROD DEPENDENCIES ----------
+FROM node:20-alpine AS backend-prod-deps
 WORKDIR /app
+
+COPY backend/package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+# ---------- FINAL RUNTIME ----------
+FROM node:20-alpine
 ENV NODE_ENV=production
+WORKDIR /app
 
-COPY --from=backend-build /app/backend/package*.json ./
-COPY --from=backend-build /app/backend/node_modules ./node_modules
-COPY --from=backend-build /app/backend/dist ./dist
-COPY --from=frontend-build /app/frontend/dist ./static
+# Prepare non-root runtime user.
+RUN addgroup -S app && adduser -S app -G app && chown -R app:app /app
+USER app
 
+# Backend runtime deps and build output.
+COPY --from=backend-prod-deps --chown=app:app /app/node_modules ./node_modules
+COPY --from=backend-build --chown=app:app /app/backend/package*.json ./
+COPY --from=backend-build --chown=app:app /app/backend/dist ./dist
+
+# Frontend static assets served by the backend.
+COPY --from=frontend-build --chown=app:app /app/frontend/dist ./static
+
+# Render injects $PORT; default 8000 for local use.
 EXPOSE 8000
 
 CMD ["node", "dist/server.js"]
