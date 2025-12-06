@@ -10,9 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { preloadPyodide } from '@/lib/runtime';
 import { Button } from '@/components/ui/button';
-import { Copy, Share } from 'lucide-react';
-import { copyToClipboard } from '@/lib/utils';
+import { Copy, Eye, EyeOff, Loader2, Play, Share } from 'lucide-react';
+import { cn, copyToClipboard } from '@/lib/utils';
 import { ShareSessionDialog } from '@/components/ShareSessionDialog';
+import { useRunCode } from '@/hooks/useRunCode';
 
 const normalizeResult = (payload: ExecutionResult) => ({
   ...payload,
@@ -23,6 +24,7 @@ const InterviewSession = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { runCode, isExecuting } = useRunCode();
   const { 
     currentSession, 
     currentUser,
@@ -36,6 +38,7 @@ const InterviewSession = () => {
     setWsSend, 
   } = useInterviewStore();
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(true);
 
   useEffect(() => {
     if (!sessionId || !currentSession || !currentUser) {
@@ -145,6 +148,24 @@ const InterviewSession = () => {
               <Share className="w-4 h-4" />
               Share
             </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={() => setShowParticipants((prev) => !prev)}
+            >
+              {showParticipants ? (
+                <>
+                  <EyeOff className="w-4 h-4" />
+                  Hide Participants
+                </>
+              ) : (
+                <>
+                  <Eye className="w-4 h-4" />
+                  Show Participants
+                </>
+              )}
+            </Button>
             <span className="text-sm text-muted-foreground">Language:</span>
             <Select
               value={language}
@@ -162,19 +183,44 @@ const InterviewSession = () => {
         </div>
       </Card>
 
-      <div className="flex-1 grid lg:grid-cols-[1fr_300px] gap-4 min-h-0">
+      <div className={cn(
+        "flex-1 grid gap-4 min-h-0",
+        showParticipants ? "lg:grid-cols-[1fr_300px]" : "grid-cols-1"
+      )}>
         <div className="flex flex-col gap-4 min-h-0">
           <Card className="flex-[2] min-h-0 p-4">
             <CodeEditor />
           </Card>
+          <div className="flex justify-end">
+            <Button 
+              onClick={runCode} 
+              disabled={isExecuting}
+              size="sm"
+              className="gap-2"
+            >
+              {isExecuting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Running...
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  Run Code
+                </>
+              )}
+            </Button>
+          </div>
           <Card className="flex-1 min-h-[200px] p-4">
             <ExecutionPanel />
           </Card>
         </div>
 
-        <Card className="p-4 overflow-auto">
-          <UserPresence />
-        </Card>
+        {showParticipants && (
+          <Card className="p-4 overflow-auto">
+            <UserPresence />
+          </Card>
+        )}
       </div>
 
       <ShareSessionDialog sessionId={currentSession.id} open={isShareOpen} onOpenChange={setIsShareOpen} />
