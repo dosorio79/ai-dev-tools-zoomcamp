@@ -91,7 +91,9 @@ This blocks:
 Loading Pyodide:
 
     const pyodide = await loadPyodide();
+    await pyodide.loadPackage("pandas"); // optional packages auto-loaded: numpy, pandas
 
+The runtime preloads optional scientific packages (`numpy`, `pandas`) after Pyodide initializes; failures are logged but do not block execution.
 Running user code:
 
     try {
