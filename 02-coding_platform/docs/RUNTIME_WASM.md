@@ -192,7 +192,7 @@ Secure sandbox: yes
 The frontend loads Pyodide from a configurable base URL. By default it uses:
 
 ```
-VITE_PYODIDE_BASE=https://cdn.jsdelivr.net/pyodide/v0.25.1/full/
+VITE_PYODIDE_BASE=https://cdn.jsdelivr.net/pyodide/v0.27.0/full/
 ```
 
 To work offline, mirror the Pyodide `full` folder locally (e.g., under `frontend/public/pyodide/`) and set:
