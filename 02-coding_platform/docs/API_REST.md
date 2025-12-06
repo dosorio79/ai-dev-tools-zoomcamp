@@ -1,118 +1,225 @@
-# REST API Specification
+# 📘 CodeCollab — Collaborative Coding Interview Platform
 
-This document defines the REST API endpoints used by the coding interview application.  
-The REST layer is intentionally small — it only manages session creation and retrieval.  
-All collaborative behavior (editing, cursor changes, presence) happens through WebSockets.
+A modern, real-time coding interview platform inspired by CoderPad & CodeSignal.  
+Built for the **AI Dev Tools Zoomcamp** using:
 
-No authentication or database is required.
+- ⚛️ React + Vite frontend  
+- 🛰️ Express + WebSockets backend  
+- 🔌 In-browser execution (JS sandbox + Python via Pyodide)  
+- 👥 Live presence & synchronized editing  
+- 🐳 Fully containerized for local dev & production deployment  
 
----
-
-# Base URL
-
-For local development:
-
-    http://localhost:8000
-
-For deployment:
-
-    https://<your-deployment>/api
-
-(If you choose to prefix with `/api`, all endpoints below use that prefix.)
-The backend currently exposes both `/sessions/*` and `/api/sessions/*`; frontend clients should prefer relative `/api` paths when served from the same origin.
+Fast, lightweight, zero cloud dependencies — **everything runs client-side or in your container**.
 
 ---
 
-# POST /session
+## 🚀 Features
 
-Create a new collaborative coding session.
-
-### Request  
-No body required.
-
-    POST /session
-
-### Response
-
-    {
-      "sessionId": "abc123",
-      "createdAt": "2025-11-27T15:00:00.000Z"
-    }
-
-### Notes
-- `sessionId` is a random string (UUID, nanoid, or similar)
-- Backend also initializes the in-memory entry for the session
-- Frontend redirects the user to `/<sessionId>` or `/session/:sessionId`
+- Real-time collaborative code editor  
+- Live user presence (join/leave indicators)  
+- JavaScript execution sandbox (browser)  
+- Python execution via Pyodide (WASM)  
+- WebSocket-driven code + language sync  
+- Shareable session links  
+- Ephemeral sessions (stateless backend)  
+- Simple, transparent architecture suitable for learning & extending  
 
 ---
 
-# GET /session/:id
+## 📁 Repository Structure
 
-Retrieve metadata about a session before connecting to WebSockets.
+### Directory Layout
 
-### Example
+    02-coding_platform/
+    ├── frontend/        # Vite + React UI
+    ├── backend/         # Express API + WebSockets
+    ├── docs/            # System design, APIs, runtime, deployment
+    ├── openapi/         # OpenAPI specification
+    ├── AGENTS.md        # Contributor & AI assistant playbook
+    └── package.json     # Dev scripts (root)
 
-    GET /session/abc123
+### Summary
 
-### Response
-
-    {
-      "sessionId": "abc123",
-      "language": "javascript",
-      "code": "",
-      "participants": [],
-      "createdAt": "2025-11-27T15:00:00.000Z"
-    }
-
-### Notes
-- Returns initial state only — real-time updates flow through WebSockets.
-- Backend may auto-create sessions or return 404 (both acceptable designs).
+- **frontend/** → collaborative editor, Pyodide runner, presence, UI  
+- **backend/** → session API, WS events, in-memory session store  
+- **docs/** → source of truth for architecture & flows  
+- **openapi/** → REST + WebSocket definitions  
 
 ---
 
-# Summary Table
+## 🧪 Quick Start (Development)
 
-| Endpoint          | Method | Description                     |
-|-------------------|--------|---------------------------------|
-| `/session`        | POST   | Create a new session            |
-| `/session/:id`    | GET    | Retrieve session metadata       |
+### 1. Install root tooling
+```bash
+npm install
+```
+
+### 2. Install service dependencies
+```bash
+cd frontend && npm install
+cd ../backend && npm install
+```
+
+### 3. Run both (via concurrently)
+```bash
+npm run dev
+```
+
+### Local URLs
+
+| Service | URL |
+|--------|-----|
+| Frontend | http://localhost:5173 |
+| Backend | http://localhost:8000 |
+| WebSockets | ws://localhost:8000/ws/{sessionId} |
+
+REST base: `/sessions/*` locally; `/api/sessions/*` when frontend is served by backend.
+
+Enable mock API mode:
+```bash
+VITE_USE_MOCK_API=true
+```
 
 ---
 
-# Error Handling
+## 🐳 Docker & Deployment
 
-### 404 Not Found
+### Local Dev — Docker Compose
 
-    {
-      "error": "Session not found"
-    }
+Runs with **two containers**, hot-reloaded:
 
-### 400 Invalid Session ID
+- `frontend` → Vite dev server  
+- `backend` → Express + WebSockets  
 
-    {
-      "error": "Invalid session ID"
-    }
+```bash
+docker compose up --build
+```
 
----
+Uses:
 
-# Example Workflow
-
-1. Frontend calls `POST /session`
-2. Backend returns JSON with a `sessionId`
-3. Frontend navigates to `/session/:id`
-4. Frontend calls `GET /session/:id`
-5. Frontend connects to WebSocket endpoint `/ws/:sessionId`
-6. Real-time collaboration begins
+- `Dockerfile.dev.frontend`  
+- `Dockerfile.dev.backend`  
 
 ---
 
-# Out-of-Scope Features (NOT required for Homework)
+### Production — Render (Single Container)
 
-These are explicitly *not needed*:
-- Authentication or user accounts
-- Role-based access
-- Persistent database
-- Session expiration logic
-- Code history tracking
+Render uses `Dockerfile.render` to build a **single Web Service**:
 
-The homework only requires a lightweight REST interface.
+1. Builds frontend → `/dist`  
+2. Builds backend → `/dist`  
+3. Copies frontend `/dist` to backend `/static`  
+4. Backend serves:  
+   - `/` → frontend  
+   - `/api/*` → REST  
+   - `/ws/*` → WebSockets  
+5. Runs on **Render-injected `$PORT`** (defaults to 8000 locally)
+
+**One origin. No CORS. No proxy. No extra config.**
+
+---
+
+## 🔌 API Overview (High-Level)
+
+### REST Endpoints
+
+- `POST /sessions` — create session  
+- `GET /sessions/{id}` — fetch session  
+- `POST /sessions/{id}/join` — join with username  
+- `GET /sessions/{id}/users` — list connected users  
+- `PUT /sessions/{id}/code` — update shared code  
+- `PUT /sessions/{id}/language` — switch language  
+- `POST /sessions/{id}/execute` — mocked execution relay  
+- `POST /sessions/{id}/leave` — leave session  
+
+### WebSocket Events
+
+- `code_change`  
+- `user_joined` / `user_left`  
+- `language_change`  
+- `execution_result`  
+
+Everything defined in `openapi/openapi.yaml`.
+
+---
+
+## 🧩 Frontend Architecture
+
+- **Zustand** for session state  
+- **Custom WebSocket hooks** for syncing  
+- **Pyodide** for browser-based Python  
+- **Sandboxed JS runner**  
+- **Code editor** mirrored across clients  
+- **Mock API** mode for offline development  
+
+---
+
+## 🧭 Intentional Design Decisions
+
+### 1. Ephemeral In-Memory Session Store
+
+Chosen because:
+
+- Sessions are short-lived  
+- No database complexity needed  
+- Produces clean, predictable state  
+- Ideal for demos, interviews, and course work  
+
+### 2. Client-Side Execution (JS Sandbox + Pyodide WASM)
+
+All execution happens in-browser:
+
+- Complete sandboxing  
+- Zero backend compute load  
+- Python (WASM) with no server runtime  
+- Horizontal scalability “for free”  
+- Same behavior everywhere  
+
+Similar to modern interview platforms that isolate execution from backend infra.
+
+### 3. Stateless Backend
+
+Backend coordinates users and events but executes **no code**:
+
+- Easy to deploy  
+- Easy to scale  
+- Clean single-container deployment  
+
+### 4. One-Origin Deployment
+
+Frontend + backend share one domain:
+
+- No CORS issues  
+- WebSockets work reliably  
+- Simpler operational setup  
+- Perfect for Render deployment  
+
+---
+
+## 📚 Documentation
+
+- `docs/SYSTEM_DESIGN.md` — core architecture  
+- `docs/API_REST.md` + `docs/API_WEBSOCKETS.md` — contracts  
+- `docs/RUNTIME_WASM.md` — JS sandbox + Pyodide  
+- `docs/DEPLOYMENT.md` — Docker Compose + Render docs  
+
+---
+
+## 🤝 Contributing
+
+See `AGENTS.md` for:
+
+- Architectural rules  
+- Contribution workflow  
+- AI assistant conventions  
+- File placement guidelines  
+
+---
+
+## 📄 License
+
+MIT License (or project default)
+
+---
+
+Made with ❤️ for **AI Dev Tools Zoomcamp**, blending full-stack engineering with modern in-browser compute (Pyodide + JS sandbox).

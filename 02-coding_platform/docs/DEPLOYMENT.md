@@ -53,7 +53,7 @@ Therefore, the final production deployment uses a single Docker image:
     final-image:
         ├── backend server (Express/FastAPI)
         ├── frontend /dist files copied into backend/static
-        └── serves everything from port 8000
+        └── serves everything on the Render-provided $PORT (8000 locally)
 
 This eliminates:
 - CORS configuration
@@ -121,6 +121,10 @@ This works perfectly with:
 - static frontend hosting
 - API endpoints
 - HTTPS termination by Render
+
+Notes for `Dockerfile.render`:
+- Frontend build is baked with `VITE_API_BASE_URL=/api` and an empty `VITE_WS_BASE_URL`, so the client always uses same-origin REST + WS (no hardcoded localhost).
+- Backend reads `process.env.PORT` (Render sets this); default is 8000 for local `docker run`.
 
 =====================================================================
 5. Environment Variables

@@ -81,7 +81,7 @@ VITE_USE_MOCK_API=true
 
 ## 🐳 Docker & Deployment
 
-### **Local Development — Docker Compose**
+### **Local Development — Docker Compose (recommended for dev)**
 Runs **two containers**:
 
 - `frontend` → Vite dev server (hot reload)  
@@ -98,22 +98,18 @@ Uses:
 ---
 
 ### **Production — Render Single Container**
-Render prefers a **single Web Service** (free tier friendly).
+Render prefers a **single Web Service** (free tier friendly). Use `Dockerfile.render` only for Render (or to mimic that layout locally):
 
-`Dockerfile.render`:
-
-1. Builds frontend → `/dist`  
-2. Builds backend  
-3. Copies `/dist` into backend `/static`  
+1. Builds frontend → `/dist` with `VITE_API_BASE_URL=/api` and same-origin WebSockets baked in.  
+2. Builds backend → `/dist`.  
+3. Copies frontend `/dist` into backend `/static`.  
 4. Backend serves:
    - `/` → index.html  
    - `/api/*` → REST  
    - `/ws/*` → WebSockets  
-5. Runs on `$PORT` (required by Render)
+5. Runs on `$PORT` (Render injects this; defaults to 8000 when not set).
 
-No CORS.  
-No reverse proxy.  
-One container, one origin.
+No CORS. No reverse proxy. One container, one origin.
 
 ---
 

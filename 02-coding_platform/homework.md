@@ -65,3 +65,9 @@ The app uses Monaco via the @monaco-editor/react package for syntax highlighting
 # 5. Code execution
 JavaScript: runs inside a dynamically created sandboxed <iframe> (no DOM/cookies/storage). The iframe overrides console.log to capture output and returns result/error via postMessage. No extra package needed.
 Python: uses Pyodide (CPython WASM) loaded from the CDN https://cdn.jsdelivr.net/pyodide/v0.27.0/full/
+
+# 6. Docker image file
+I used node:20-alpine as the base image for my Dockerfile. It’s a lightweight and production-friendly Node.js image that works well for building and running both the frontend and backend inside a single container.
+
+# 7. Service used for deployment
+I deployed the application using Render, creating a single Docker-based Web Service that runs both the frontend and backend in one container.
