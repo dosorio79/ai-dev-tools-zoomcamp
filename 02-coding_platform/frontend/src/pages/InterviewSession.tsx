@@ -183,11 +183,13 @@ const InterviewSession = () => {
         </div>
       </Card>
 
-      <div className={cn(
-        "flex-1 grid gap-4 min-h-0",
-        showParticipants ? "lg:grid-cols-[1fr_300px]" : "grid-cols-1"
-      )}>
-        <div className="flex flex-col gap-4 min-h-0">
+      <div
+        className={cn(
+          "flex-1 grid gap-4 min-h-0",
+          showParticipants ? "grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]" : "grid-cols-1",
+        )}
+      >
+        <div className="flex flex-col gap-4 min-h-0 h-full">
           <Card className="flex-[2] min-h-0 p-4">
             <CodeEditor />
           </Card>
@@ -217,9 +219,11 @@ const InterviewSession = () => {
         </div>
 
         {showParticipants && (
-          <Card className="p-4 overflow-auto">
-            <UserPresence />
-          </Card>
+          <div className="min-h-0 h-full">
+            <Card className="p-4 h-full overflow-auto min-h-0">
+              <UserPresence />
+            </Card>
+          </div>
         )}
       </div>
 
