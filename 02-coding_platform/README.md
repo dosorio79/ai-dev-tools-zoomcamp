@@ -7,8 +7,9 @@ Built for the **AI Dev Tools Zoomcamp** using:
 - 🛰️ Express + WebSockets backend  
 - 🔌 In-browser execution (JS sandbox + Python via Pyodide)  
 - 👥 Live presence & synchronized editing  
+- 🐳 Fully containerized for local dev & production deployment  
 
-Fast, lightweight, zero cloud dependencies.
+Fast, lightweight, zero cloud dependencies — **everything runs client-side or in your container**.
 
 ---
 
@@ -20,26 +21,27 @@ Fast, lightweight, zero cloud dependencies.
 - Python execution via Pyodide (WASM)  
 - WebSocket-driven code + language sync  
 - Shareable session links  
-- Zero backend persistence (ephemeral sessions)
+- Ephemeral sessions (stateless backend)  
+- Simple, transparent architecture suitable for learning & extending  
 
 ---
 
 ## 📁 Repository Structure
 
-```
-02-coding_platform/
-├── frontend/        # Vite + React UI
-├── backend/         # Express API + WebSockets
-├── docs/            # System design, APIs, runtime, deployment
-├── openapi/         # OpenAPI specification
-├── AGENTS.md        # Contributor & AI assistant playbook
-└── package.json     # Dev scripts (root)
-```
+### Directory Layout
 
-### Quick Summary
+    02-coding_platform/
+    ├── frontend/        # Vite + React UI
+    ├── backend/         # Express API + WebSockets
+    ├── docs/            # System design, APIs, runtime, deployment
+    ├── openapi/         # OpenAPI specification
+    ├── AGENTS.md        # Contributor & AI assistant playbook
+    └── package.json     # Dev scripts (root)
+
+### Summary
 
 - **frontend/** → collaborative editor, Pyodide runner, presence, UI  
-- **backend/** → sessions API, WS events, in-memory session store  
+- **backend/** → session API, WS events, in-memory session store  
 - **docs/** → source of truth for architecture & flows  
 - **openapi/** → REST + WebSocket definitions  
 
@@ -64,13 +66,14 @@ npm run dev
 ```
 
 ### Local URLs
+
 | Service | URL |
-|---------|-----|
+|--------|-----|
 | Frontend | http://localhost:5173 |
-| Backend (REST) | http://localhost:8000 |
+| Backend | http://localhost:8000 |
 | WebSockets | ws://localhost:8000/ws/{sessionId} |
 
-REST base path: `/sessions/*` (or `/api/sessions/*` when frontend is served by the backend).
+REST base: `/sessions/*` locally; `/api/sessions/*` when frontend is served by backend.
 
 Enable mock API mode:
 ```bash
@@ -81,52 +84,56 @@ VITE_USE_MOCK_API=true
 
 ## 🐳 Docker & Deployment
 
-### **Local Development — Docker Compose (recommended for dev)**
-Runs **two containers**:
+### Local Dev — Docker Compose
 
-- `frontend` → Vite dev server (hot reload)  
-- `backend`  → Node/Express + WS (auto-reload)  
+Runs with **two containers**, hot-reloaded:
+
+- `frontend` → Vite dev server  
+- `backend` → Express + WebSockets  
 
 ```bash
 docker compose up --build
 ```
 
 Uses:
-- `Dockerfile.dev.frontend`
-- `Dockerfile.dev.backend`
+
+- `Dockerfile.dev.frontend`  
+- `Dockerfile.dev.backend`  
 
 ---
 
-### **Production — Render Single Container**
-Render prefers a **single Web Service** (free tier friendly). Use `Dockerfile.render` only for Render (or to mimic that layout locally):
+### Production — Render (Single Container)
 
-1. Builds frontend → `/dist` with `VITE_API_BASE_URL=/api` and same-origin WebSockets baked in.  
-2. Builds backend → `/dist`.  
-3. Copies frontend `/dist` into backend `/static`.  
-4. Backend serves:
-   - `/` → index.html  
+Render uses `Dockerfile.render` to build a **single Web Service**:
+
+1. Builds frontend → `/dist`  
+2. Builds backend → `/dist`  
+3. Copies frontend `/dist` to backend `/static`  
+4. Backend serves:  
+   - `/` → frontend  
    - `/api/*` → REST  
    - `/ws/*` → WebSockets  
-5. Runs on `$PORT` (Render injects this; defaults to 8000 when not set).
+5. Runs on **Render-injected `$PORT`** (defaults to 8000 locally)
 
-No CORS. No reverse proxy. One container, one origin.
+**One origin. No CORS. No proxy. No extra config.**
 
 ---
 
 ## 🔌 API Overview (High-Level)
 
-### REST
-- `POST /sessions` → create session  
-- `GET /sessions/{id}` → fetch session  
-- `POST /sessions/{id}/join` → join with username  
-- `GET /sessions/{id}/users` → list connected users  
-- `PUT /sessions/{id}/code` → update shared code  
-- `PUT /sessions/{id}/language` → switch language  
-- `POST /sessions/{id}/execute` → mocked execution  
-- `POST /sessions/{id}/leave` → leave session  
-Base paths: `/sessions/*` locally; `/api/sessions/*` when served from the same origin as the frontend.
+### REST Endpoints
+
+- `POST /sessions` — create session  
+- `GET /sessions/{id}` — fetch session  
+- `POST /sessions/{id}/join` — join with username  
+- `GET /sessions/{id}/users` — list connected users  
+- `PUT /sessions/{id}/code` — update shared code  
+- `PUT /sessions/{id}/language` — switch language  
+- `POST /sessions/{id}/execute` — mocked execution relay  
+- `POST /sessions/{id}/leave` — leave session  
 
 ### WebSocket Events
+
 - `code_change`  
 - `user_joined` / `user_left`  
 - `language_change`  
@@ -138,55 +145,81 @@ Everything defined in `openapi/openapi.yaml`.
 
 ## 🧩 Frontend Architecture
 
-- **Zustand** store (`interviewStore.ts`) manages session state  
-- **WebSocket hooks** propagate live events  
-- **Pyodide** loads once → Python runs in your browser  
-- **JS sandbox** executes JavaScript safely  
-- **Editor** updates propagate instantly through WebSockets  
-- **Mock API** available for testing  
+- **Zustand** for session state  
+- **Custom WebSocket hooks** for syncing  
+- **Pyodide** for browser-based Python  
+- **Sandboxed JS runner**  
+- **Code editor** mirrored across clients  
+- **Mock API** mode for offline development  
+
+---
+
+## 🧭 Intentional Design Decisions
+
+### 1. Ephemeral In-Memory Session Store
+
+Chosen because:
+
+- Sessions are short-lived  
+- No database complexity needed  
+- Produces clean, predictable state  
+- Ideal for demos, interviews, and course work  
+
+### 2. Client-Side Execution (JS Sandbox + Pyodide WASM)
+
+All execution happens in-browser:
+
+- Complete sandboxing  
+- Zero backend compute load  
+- Python (WASM) with no server runtime  
+- Horizontal scalability “for free”  
+- Same behavior everywhere  
+
+Similar to modern interview platforms that isolate execution from backend infra.
+
+### 3. Stateless Backend
+
+Backend coordinates users and events but executes **no code**:
+
+- Easy to deploy  
+- Easy to scale  
+- Clean single-container deployment  
+
+### 4. One-Origin Deployment
+
+Frontend + backend share one domain:
+
+- No CORS issues  
+- WebSockets work reliably  
+- Simpler operational setup  
+- Perfect for Render deployment  
 
 ---
 
 ## 📚 Documentation
 
-Start here:
-
-- `docs/SYSTEM_DESIGN.md` — system architecture  
-- `docs/API_REST.md` + `docs/API_WEBSOCKETS.md` — API contracts  
-- `docs/RUNTIME_WASM.md` — JS sandbox + Pyodide execution  
-- `docs/DEPLOYMENT.md` — Docker Compose + Render deployment  
-
----
-
-## ⚠️ Known Limitations
-
-- In-memory session store → restart wipes state  
-- Backend does not execute user code; execution stays in the browser (JS sandbox/Pyodide) and results are just relayed  
-- No authentication/roles (by design for the Zoomcamp)  
-- Not intended as a multi-tenant production SaaS  
+- `docs/SYSTEM_DESIGN.md` — core architecture  
+- `docs/API_REST.md` + `docs/API_WEBSOCKETS.md` — contracts  
+- `docs/RUNTIME_WASM.md` — JS sandbox + Pyodide  
+- `docs/DEPLOYMENT.md` — Docker Compose + Render docs  
 
 ---
 
 ## 🤝 Contributing
 
-Read:
+See `AGENTS.md` for:
 
-```
-AGENTS.md
-```
-
-Includes:
-- task boundaries  
-- internal architecture rules  
-- AI-assistant coding patterns  
-- file placement conventions  
+- Architectural rules  
+- Contribution workflow  
+- AI assistant conventions  
+- File placement guidelines  
 
 ---
 
 ## 📄 License
 
-MIT License (or project default).
+MIT License (or project default)
 
 ---
 
-Made with ❤️ for AI Dev Tools Zoomcamp.
+Made with ❤️ for **AI Dev Tools Zoomcamp**, blending full-stack engineering with modern in-browser compute (Pyodide + JS sandbox).
