@@ -1,0 +1,72 @@
+############################################
+# Python
+############################################
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+############################################
+# Virtual Environments (uv, venv, pyenv)
+############################################
+.venv/
+venv/
+virtualenv/
+.env/
+.envrc
+
+############################################
+# uv / Ruff / Tooling
+############################################
+.uv/
+uv.lock
+.cache/
+.mypy_cache/
+.ruff_cache/
+
+############################################
+# Airflow – LOCAL SETUP
+############################################
+# Core Airflow directories
+airflow_home/
+logs/
+plugins/__pycache__/
+
+# Airflow config + env + token files
+airflow.cfg
+webserver_config.py
+airflow_settings.yaml
+simple_auth.yaml
+simple_auth/
+airflow_unittest.db
+
+# SQLite DBs (all variants, visible + hidden)
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+.*.db
+.*.db-shm
+.*.db-wal
+.*.db-journal
+
+############################################
+# OS / Editor junk
+############################################
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+############################################
+# Node / JS (for MCP Inspector)
+############################################
+node_modules/
+npm-deb
