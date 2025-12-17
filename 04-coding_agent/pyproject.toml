@@ -1,0 +1,11 @@
+[project]
+name = "Django-coding-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.2.9",
+    "openai>=2.13.0",
+    "pydantic-ai>=1.34.0",
+]

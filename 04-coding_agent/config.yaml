@@ -1,0 +1,29 @@
+# Default configuration for the Django coding agent scaffold.
+workspace_root: ../04.1-todo_agent_version
+model: gpt-4.1-mini
+max_steps: 25
+dry_run: true
+
+# Toggle to capture verbose debug information from the CLI and tools.
+log_level: INFO
+
+deny_dirs:
+  - .git
+  - .venv
+  - venv
+  - __pycache__
+  - node_modules
+  - dist
+  - build
+  - .mypy_cache
+  - .pytest_cache
+
+allowed_extensions:
+  - .py
+  - .html
+  - .txt
+  - .md
+  - .toml
+  - .yaml
+  - .yml
+  - .json

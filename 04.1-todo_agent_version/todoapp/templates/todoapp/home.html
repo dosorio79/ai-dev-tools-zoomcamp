@@ -1,0 +1,74 @@
+{% extends "todoapp/base.html" %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">My To Do App</h1>
+
+<form method="post" class="flex gap-2 mb-4">
+    {% csrf_token %}
+    <input name="title" placeholder="Add a new todo..."
+           class="flex-1 border rounded px-3 py-2" required>
+    <button type="submit"
+            class="bg-blue-600 text-white px-4 py-2 rounded">
+        Add
+    </button>
+</form>
+
+<ul class="space-y-2">
+    {% for todo in todos %}
+        <li class="flex justify-between items-center border-b py-3">
+            <!-- Title + Due Date -->
+            <span class="flex flex-col">
+                <span class="text-lg {% if todo.completed %}line-through text-gray-500{% endif %}">
+                    {{ todo.title }}
+                </span>
+                {% if todo.due_date %}
+                    {% if todo.due_date < today %}
+                        <!-- Overdue -->
+                        <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full mt-1">
+                            Overdue: {{ todo.due_date|date:"Y-m-d" }}
+                        </span>
+                    {% else %}
+                        <!-- Upcoming -->
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full mt-1">
+                            Due: {{ todo.due_date|date:"Y-m-d" }}
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </span>
+
+            <!-- Actions -->
+            <div class="flex gap-2">
+
+                <!-- Toggle -->
+                <form method="post" action="{% url 'toggle_todo' todo.pk %}">
+                    {% csrf_token %}
+                    <button class="px-3 py-1 rounded-full text-white
+                        {% if todo.completed %} bg-gray-500 hover:bg-gray-600
+                        {% else %} bg-green-600 hover:bg-green-700
+                        {% endif %}">
+                        {% if todo.completed %}Undo{% else %}Complete{% endif %}
+                    </button>
+                </form>
+
+                <!-- Edit -->
+                <a href="{% url 'edit_todo' todo.pk %}"
+                   class="px-3 py-1 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                    Edit
+                </a>
+
+                <!-- Delete -->
+                <form method="post" action="{% url 'delete_todo' todo.pk %}">
+                    {% csrf_token %}
+                    <button class="px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white">
+                        Delete
+                    </button>
+                </form>
+
+            </div>
+        </li>
+
+    {% empty %}
+        <li class="text-gray-600">No todos yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
