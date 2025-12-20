@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import List
 from pydantic_ai import Tool, tool
 
-#import yaml settings
+#import yaml settings DENY_FOLDERS, ALLOWED_EXTENSIONS
+
 
 def list_files(state: AgentState) -> List[str]:
     """List files in a directory with an optional extension filter."""

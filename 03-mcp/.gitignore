@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+.uv/
+uv-cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Downloads / data artifacts
+*.zip
+/data/fastmcp.zip
+/data/index/
+downloads/
+
+# Temporary files
+.tmp/
+.cache/
+
+# Test outputs
+.pytest_cache/
+coverage/
+htmlcov/
+
+# Secrets
+.env
+.env.local
+.env.*.local
