@@ -1,0 +1,14 @@
+storage:
+  base_dir: data
+  zips_dir: data/index
+
+repos:
+  - name: fastmcp
+    url: https://github.com/jlowin/fastmcp
+    branch: master
+    docs_extensions:
+      - .md
+      - .mdx
+
+search:
+  snippet_size: 300

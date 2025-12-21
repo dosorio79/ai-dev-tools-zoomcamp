@@ -62,7 +62,11 @@ def discover_zip_root(path: str, filename: str) -> str:
         return roots.pop()
     
 
-def parse_zip_file(path: str, filename: str) -> list[str]:
+def parse_zip_file(
+    path: str,
+    filename: str,
+    extensions: list[str] | tuple[str, ...] | None = None,
+) -> list[str]:
     """
     Parse a ZIP file and return normalized POSIX paths of Markdown files (.md, .mdx),
     with the top-level directory removed.
@@ -79,10 +83,11 @@ def parse_zip_file(path: str, filename: str) -> list[str]:
         raise FileNotFoundError(f"The file {zip_file_path} does not exist.")
 
     md_files: list[str] = []
+    extensions = tuple(extensions) if extensions else (".md", ".mdx")
 
     with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
         for name in zip_ref.namelist():
-            if not name.endswith((".md", ".mdx")):
+            if not name.endswith(extensions):
                 continue
 
             parts = PurePosixPath(name).parts
