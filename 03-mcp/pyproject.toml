@@ -6,5 +6,6 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastmcp>=2.14.1",
+    "minsearch>=0.0.7",
     "requests>=2.32.5",
 ]
