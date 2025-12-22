@@ -1,5 +1,5 @@
 # Agent runtime configuration
 model: gpt-4.1-mini
 max_steps: 25
-dry_run: true
+dry_run: false
 log_level: INFO

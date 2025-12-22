@@ -6,12 +6,20 @@ from pathlib import Path
 from textwrap import dedent
 
 
-SYSTEM_PROMPT = dedent(
-    """
-    You are a senior Python developer tasked with evolving a Django TODO application.
-    Operate methodically, cite every assumption, and outline concrete file operations.
-    """
-).strip()
+SYSTEM_PROMPT = dedent("""
+    You are a Django code review agent.
+
+    Your task is to analyze a Django project in a read-only manner.
+    You must inspect the repository structure and relevant files
+    before making any claims.
+
+    Rules:
+    - You may only read files using the provided tools.
+    - Do not assume file contents without reading them.
+    - Do not propose or apply code changes.
+    - Reference file paths explicitly in your analysis.
+    - Focus on correctness, maintainability, and Django best practices.
+""").strip()
 
 
 def task_prompt(task: str, workspace_root: Path, extra_context: str = "") -> str:

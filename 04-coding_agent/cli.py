@@ -9,8 +9,11 @@ from config.config import load_config
 from agent.agent import build_agent
 from agent.policy import RepositoryPolicy
 from agent.prompts import task_prompt
-from agent.state import AgentState
-from agent.tools import list_files
+from agent.state import AgentDeps
+from agent.tools import list_files_for_policy
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def _parse_args() -> argparse.Namespace:
@@ -53,34 +56,31 @@ def main() -> None:
     config = load_config(args.config_dir)
     config = _apply_overrides(config, args)
 
-    state = AgentState(
-        repository_path=Path(config["workspace_root"]),
-        task=args.task,
-    )
     policy = RepositoryPolicy(
         deny_dirs=set(config["deny_dirs"]),
         allowed_extensions=set(config["allowed_extensions"]),
     )
+    deps = AgentDeps(
+        repository_path=Path(config["workspace_root"]),
+        policy=policy,
+    )
 
-    print("Loaded config for workspace:", state.repository_path)
-    print("Task:", state.task)
+    print("Loaded config for workspace:", deps.repository_path)
+    print("Task:", args.task)
     print("Dry run:", config.get("dry_run", True))
 
     if args.list_files:
-        for path in list_files(state, policy):
+        for path in list_files_for_policy(deps.repository_path, policy):
             print(path)
 
     if config.get("dry_run", True):
         print("Dry run enabled; no agent execution performed.")
         return
 
-    agent = build_agent(
-        model_name=config["model"],
-        max_steps=int(config["max_steps"]),
-    )
-    prompt = task_prompt(state.task, state.repository_path)
-    result = agent.run_sync(prompt, state=state, deps=policy)
-    print(result.data)
+    agent = build_agent(model_name=config["model"])
+    prompt = task_prompt(args.task, deps.repository_path)
+    result = agent.run_sync(prompt, deps=deps)
+    print(result.response)
 
 
 if __name__ == "__main__":

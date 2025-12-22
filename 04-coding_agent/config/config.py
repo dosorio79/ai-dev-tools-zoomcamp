@@ -108,3 +108,20 @@ def load_repository_policy(path: Path) -> RepositoryPolicy:
     """Load RepositoryPolicy from repository.yaml."""
     data = _load_yaml(path)
     return RepositoryPolicy(**data)
+
+
+def load_config(config_dir: Path | None = None) -> Dict[str, Any]:
+    """Load and combine config files into a flat dict."""
+    base = (config_dir or Path(__file__).parent).resolve()
+    agent_cfg = load_agent_config(base / "agent.yaml")
+    workspace_cfg = load_workspace_config(base / "workspace.yaml")
+    repo_policy = load_repository_policy(base / "repository.yaml")
+    return {
+        "model": agent_cfg.model,
+        "max_steps": agent_cfg.max_steps,
+        "dry_run": agent_cfg.dry_run,
+        "log_level": agent_cfg.log_level,
+        "workspace_root": workspace_cfg.workspace_root,
+        "deny_dirs": repo_policy.deny_dirs,
+        "allowed_extensions": repo_policy.allowed_extensions,
+    }

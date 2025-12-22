@@ -5,13 +5,15 @@ from pathlib import Path
 from typing import List
 import subprocess
 
-from .state import AgentState
+from pydantic_ai import RunContext
+
 from .policy import RepositoryPolicy
+from .state import AgentDeps
 
 
-def list_files(state: AgentState, policy: RepositoryPolicy) -> List[str]:
+def list_files_for_policy(repository_path: Path, policy: RepositoryPolicy) -> List[str]:
     """List relevant files in the repository according to policy."""
-    root = state.repository_path
+    root = repository_path
     results: List[str] = []
 
     for path in root.rglob("*"):
@@ -35,16 +37,23 @@ def list_files(state: AgentState, policy: RepositoryPolicy) -> List[str]:
 
     results.sort()
     return results
+
+
+def list_files(ctx: RunContext[AgentDeps]) -> List[str]:
+    """List relevant files in the repository according to policy."""
+    deps = ctx.deps
+    return list_files_for_policy(deps.repository_path, deps.policy)
             
 
 def read_file(
-    state: AgentState,
-    policy: RepositoryPolicy,
+    ctx: RunContext[AgentDeps],
     relative_path: str,
     max_chars: int = 10_000,
 ) -> str:
     """Read a file safely from the repository."""
-    root = state.repository_path
+    deps = ctx.deps
+    policy = deps.policy
+    root = deps.repository_path
     candidate = (root / relative_path).resolve()
 
     if not candidate.is_relative_to(root):
@@ -67,9 +76,10 @@ def read_file(
     return content
 
 
-def run_django_check(state: AgentState) -> str:
+def run_django_check(ctx: RunContext[AgentDeps]) -> str:
     """Run `python manage.py check` in the target Django project."""
-    root = state.repository_path
+    deps = ctx.deps
+    root = deps.repository_path
     manage_py = root / "manage.py"
 
     if not manage_py.exists():

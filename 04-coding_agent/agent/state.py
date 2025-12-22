@@ -4,6 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from pydantic import BaseModel, field_validator
 
+from .policy import RepositoryPolicy
+
 class AgentState(BaseModel):
     """Represents the state of the coding agent."""
     repository_path: Path
@@ -31,6 +33,27 @@ class AgentState(BaseModel):
         if not value or not value.strip():
             raise ValueError("Task cannot be empty.")
         return value
+
+    model_config = {
+        "arbitrary_types_allowed": True,
+    }
+
+
+class AgentDeps(BaseModel):
+    """Dependencies passed into agent tools."""
+
+    repository_path: Path
+    policy: RepositoryPolicy
+
+    @field_validator("repository_path")
+    @classmethod
+    def validate_repository_path(cls, value: Path) -> Path:
+        path = value.expanduser().resolve()
+        if not path.exists():
+            raise ValueError(f"Repository path does not exist: {path}")
+        if not path.is_dir():
+            raise ValueError(f"Repository path is not a directory: {path}")
+        return path
 
     model_config = {
         "arbitrary_types_allowed": True,
