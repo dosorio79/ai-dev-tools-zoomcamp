@@ -6,7 +6,9 @@ import argparse
 from pathlib import Path
 
 from config.config import load_config
+from agent.agent import build_agent
 from agent.policy import RepositoryPolicy
+from agent.prompts import task_prompt
 from agent.state import AgentState
 from agent.tools import list_files
 
@@ -72,7 +74,13 @@ def main() -> None:
         print("Dry run enabled; no agent execution performed.")
         return
 
-    print("Agent execution is not wired yet.")
+    agent = build_agent(
+        model_name=config["model"],
+        max_steps=int(config["max_steps"]),
+    )
+    prompt = task_prompt(state.task, state.repository_path)
+    result = agent.run_sync(prompt, state=state, deps=policy)
+    print(result.data)
 
 
 if __name__ == "__main__":
