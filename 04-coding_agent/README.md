@@ -15,13 +15,16 @@ django-coding-agent/
 │   ├── state.py
 │   └── tools.py
 ├── cli.py
-├── config.yaml
+├── config/
+│   ├── agent.yaml
+│   ├── repository.yaml
+│   └── workspace.yaml
 └── pyproject.toml
 ```
 
 `agent/` hosts the soon-to-be PydanticAI agent, common prompts, typed state, and
-filesystem helpers. `cli.py` offers a Typer-based entry point so you can run or debug
-the agent locally, while `config.yaml` exposes a couple of knobs (model name, maximum
+filesystem helpers. `cli.py` offers a minimal entry point so you can run or debug
+the agent locally, while [`config/`](config/) exposes the knobs (model name, maximum
 steps, workspace root, etc.).
 
 ## Getting started
@@ -30,8 +33,8 @@ steps, workspace root, etc.).
    ```
    uv pip install -e ./django-coding-agent
    ```
-2. Adjust `config.yaml` so `workspace_root` points to the Django project you want the
-   agent to manage.
+2. Adjust [`config/workspace.yaml`](config/workspace.yaml) so `workspace_root` points to the Django project
+   you want the agent to manage.
 3. Run a dry task:
    ```
    uv run python django-coding-agent/cli.py run "read the README" --dry-run
@@ -43,17 +46,50 @@ the CLI output can be streamed, persisted, or sent to another orchestrator.
 
 ## Configuration
 
-`config.yaml` keeps the defaults lightweight:
+The configuration is split across three files in [`config/`](config/):
+
+[`config/workspace.yaml`](config/workspace.yaml):
 
 ```yaml
 workspace_root: ../04.1-todo_agent_version
+```
+
+[`config/agent.yaml`](config/agent.yaml):
+
+```yaml
 model: gpt-4.1-mini
 max_steps: 25
 dry_run: true
+log_level: INFO
+```
+
+[`config/repository.yaml`](config/repository.yaml):
+
+```yaml
+deny_dirs:
+  - .git
+  - .venv
+  - venv
+  - __pycache__
+  - node_modules
+  - dist
+  - build
+  - .mypy_cache
+  - .pytest_cache
+
+allowed_extensions:
+  - .py
+  - .html
+  - .txt
+  - .md
+  - .toml
+  - .yaml
+  - .yml
+  - .json
 ```
 
 Override any of these via CLI flags (`--workspace-root`, `--max-steps`, etc.) or by
-providing a custom config file path through `--config`.
+providing a custom config directory path through `--config-dir`.
 
 ## Next steps
 

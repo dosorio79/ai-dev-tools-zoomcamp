@@ -1,0 +1,20 @@
+deny_dirs:
+  - .git
+  - .venv
+  - venv
+  - __pycache__
+  - node_modules
+  - dist
+  - build
+  - .mypy_cache
+  - .pytest_cache
+
+allowed_extensions:
+  - .py
+  - .html
+  - .txt
+  - .md
+  - .toml
+  - .yaml
+  - .yml
+  - .json
