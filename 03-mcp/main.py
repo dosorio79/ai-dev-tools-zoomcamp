@@ -153,5 +153,8 @@ def read_repo_file(filename: str, repo: str | None = None) -> str:
 # ---------------------------------------------------------------------
 
 print("\nMCP server is ready. Waiting for tool calls...")
-if __name__ == "__main__":
+def main()->None:
     mcp.run()
+    
+if __name__ == "__main__":
+    main()

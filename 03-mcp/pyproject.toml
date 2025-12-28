@@ -1,7 +1,7 @@
 [project]
 name = "03-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "FastMCP documentation MCP server"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -10,3 +10,12 @@ dependencies = [
     "pyyaml>=6.0.1",
     "requests>=2.32.5",
 ]
+
+[project.scripts]
+hw3-mcp = "main:main"
+
+[tool.uv]
+package = true
+
+[tool.setuptools]
+py-modules = ["main", "config", "scrape", "search"]
