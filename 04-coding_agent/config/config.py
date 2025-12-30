@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Dict, Any
 
@@ -110,12 +112,26 @@ def load_repository_policy(path: Path) -> RepositoryPolicy:
     return RepositoryPolicy(**data)
 
 
+# ---------------------------------------------------------------------------
+# Legacy flat loader (optional / deprecated)
+# ---------------------------------------------------------------------------
+
 def load_config(config_dir: Path | None = None) -> Dict[str, Any]:
-    """Load and combine config files into a flat dict."""
+    """
+    DEPRECATED.
+
+    Legacy flat config loader kept for compatibility or quick scripts.
+    Do NOT use in the main CLI. Prefer typed loaders instead:
+    - load_agent_config
+    - load_workspace_config
+    - load_repository_policy
+    """
     base = (config_dir or Path(__file__).parent).resolve()
+
     agent_cfg = load_agent_config(base / "agent.yaml")
     workspace_cfg = load_workspace_config(base / "workspace.yaml")
     repo_policy = load_repository_policy(base / "repository.yaml")
+
     return {
         "model": agent_cfg.model,
         "max_steps": agent_cfg.max_steps,

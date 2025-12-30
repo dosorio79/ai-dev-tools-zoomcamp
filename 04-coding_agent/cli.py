@@ -76,7 +76,7 @@ def main() -> None:
     )
 
     result = agent.run(state)
-    print(result.data)
+    print(result.response)
 
 
 if __name__ == "__main__":

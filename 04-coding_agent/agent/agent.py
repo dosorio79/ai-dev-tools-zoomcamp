@@ -28,4 +28,5 @@ class DjangoCodingAgent:
 
 
 def create_agent(model_name: str, max_steps: int) -> DjangoCodingAgent:
+    """Create and configure the Django coding agent (state-driven)."""
     return DjangoCodingAgent(model_name=model_name, max_steps=max_steps)
