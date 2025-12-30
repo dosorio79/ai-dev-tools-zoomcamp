@@ -1,23 +1,30 @@
 """Filesystem + Django-aware helpers exposed as agent tools."""
 
 from __future__ import annotations
+
 from pathlib import Path
 from typing import List
 import subprocess
 
 from pydantic_ai import RunContext
 
-from .policy import RepositoryPolicy
-from .state import AgentDeps
+from agent.policy import RepositoryPolicy
+from agent.state import AgentState
 
 
-def list_files_for_policy(repository_path: Path, policy: RepositoryPolicy) -> List[str]:
+# ---------------------------------------------------------------------------
+# Internal helpers (not agent tools)
+# ---------------------------------------------------------------------------
+
+def _list_files_for_policy(
+    repository_path: Path,
+    policy: RepositoryPolicy,
+) -> List[str]:
     """List relevant files in the repository according to policy."""
-    root = repository_path
     results: List[str] = []
 
-    for path in root.rglob("*"):
-        # Explicit directory handling
+    for path in repository_path.rglob("*"):
+        # Skip denied directories entirely
         if path.is_dir():
             if path.name in policy.deny_dirs:
                 continue
@@ -31,29 +38,34 @@ def list_files_for_policy(repository_path: Path, policy: RepositoryPolicy) -> Li
         if path.suffix not in policy.allowed_extensions:
             continue
 
-        # Safe relative path
-        rel_path = path.relative_to(root)
-        results.append(str(rel_path))
+        results.append(str(path.relative_to(repository_path)))
 
     results.sort()
     return results
 
 
-def list_files(ctx: RunContext[AgentDeps]) -> List[str]:
+# ---------------------------------------------------------------------------
+# Agent tools
+# ---------------------------------------------------------------------------
+
+def list_files(ctx: RunContext[AgentState]) -> List[str]:
     """List relevant files in the repository according to policy."""
-    deps = ctx.deps
-    return list_files_for_policy(deps.repository_path, deps.policy)
-            
+    state = ctx.deps
+    return _list_files_for_policy(
+        state.repository_path,
+        state.policy,
+    )
+
 
 def read_file(
-    ctx: RunContext[AgentDeps],
+    ctx: RunContext[AgentState],
     relative_path: str,
     max_chars: int = 10_000,
 ) -> str:
     """Read a file safely from the repository."""
-    deps = ctx.deps
-    policy = deps.policy
-    root = deps.repository_path
+    state = ctx.deps
+    policy = state.policy
+    root = state.repository_path
     candidate = (root / relative_path).resolve()
 
     if not candidate.is_relative_to(root):
@@ -76,10 +88,9 @@ def read_file(
     return content
 
 
-def run_django_check(ctx: RunContext[AgentDeps]) -> str:
+def run_django_check(ctx: RunContext[AgentState]) -> str:
     """Run `python manage.py check` in the target Django project."""
-    deps = ctx.deps
-    root = deps.repository_path
+    root = ctx.deps.repository_path
     manage_py = root / "manage.py"
 
     if not manage_py.exists():

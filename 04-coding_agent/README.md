@@ -22,10 +22,9 @@ django-coding-agent/
 └── pyproject.toml
 ```
 
-`agent/` hosts the soon-to-be PydanticAI agent, common prompts, typed state, and
-filesystem helpers. `cli.py` offers a minimal entry point so you can run or debug
-the agent locally, while [`config/`](config/) exposes the knobs (model name, maximum
-steps, workspace root, etc.).
+`agent/` hosts the PydanticAI wrapper, prompt, typed state, and filesystem helpers.
+`cli.py` offers a minimal entry point so you can run or debug the agent locally,
+while [`config/`](config/) provides the model settings and repository policy.
 
 ## Getting started
 
@@ -33,16 +32,15 @@ steps, workspace root, etc.).
    ```
    uv pip install -e ./django-coding-agent
    ```
-2. Adjust [`config/workspace.yaml`](config/workspace.yaml) so `workspace_root` points to the Django project
-   you want the agent to manage.
-3. Run a dry task:
+2. Adjust [`config/workspace.yaml`](config/workspace.yaml) so `workspace_root` points to an existing Django
+   project (the CLI validates it, even though the runtime path is passed via `--repo-path`).
+3. Run a task:
    ```
-   uv run python django-coding-agent/cli.py run "read the README" --dry-run
+   uv run python django-coding-agent/cli.py --repo-path ../04.1-todo_agent_version "read the README"
    ```
 
-By default the CLI returns a stubbed `AgentState` instance. Once you replace the
-`StubAgent` implementation in `agent/agent.py` with a concrete `pydantic_ai.Agent`,
-the CLI output can be streamed, persisted, or sent to another orchestrator.
+The CLI prints the agent response to stdout and does not persist runs or enforce
+structured output.
 
 ## Configuration
 
@@ -88,14 +86,14 @@ allowed_extensions:
   - .json
 ```
 
-Override any of these via CLI flags (`--workspace-root`, `--max-steps`, etc.) or by
-providing a custom config directory path through `--config-dir`.
+The CLI consumes `agent.yaml` and `repository.yaml`; `workspace.yaml` is only used
+for validation. Override the config directory path through `--config-dir`.
 
 ## Next steps
 
-- Replace the placeholder `StubAgent` class with a `pydantic_ai.Agent`.
 - Expand `agent/tools.py` with Django-aware helpers (running `manage.py`, inspecting
   models, parsing templates, etc.).
 - Persist agent runs by serializing `AgentState` to disk or to your telemetry stack.
+- Wire config values like `dry_run`/`log_level` into the CLI runtime.
 - Connect the CLI to a task queue (Celery, Temporal, Prefect) once you're ready to
   schedule long-running tasks.
