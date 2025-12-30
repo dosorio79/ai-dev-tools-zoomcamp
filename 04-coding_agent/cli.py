@@ -1,5 +1,3 @@
-"""CLI entry point for the Django coding agent (typed-first)."""
-
 from __future__ import annotations
 
 import argparse
@@ -15,29 +13,16 @@ from config.config import (
     load_repository_policy,
     load_workspace_config,
 )
+from pydantic_ai import UsageLimits
 
 load_dotenv()
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the Django coding agent.")
-    parser.add_argument(
-        "--repo-path",
-        type=Path,
-        required=True,
-        help="Path to the Django project to analyze",
-    )
-    parser.add_argument(
-        "task",
-        type=str,
-        help="Task description for the agent",
-    )
-    parser.add_argument(
-        "--config-dir",
-        type=Path,
-        default=Path("config"),
-        help="Directory containing agent.yaml, repository.yaml, workspace.yaml",
-    )
+    parser.add_argument("--repo-path", type=Path, required=True)
+    parser.add_argument("task", type=str)
+    parser.add_argument("--config-dir", type=Path, default=Path("config"))
     return parser.parse_args()
 
 
@@ -45,18 +30,12 @@ def main() -> None:
     args = parse_args()
     config_dir = args.config_dir.resolve()
 
-    # ---------------------------------------------------------------------
-    # Load typed configuration
-    # ---------------------------------------------------------------------
     agent_cfg = load_agent_config(config_dir / "agent.yaml")
     repo_policy = load_repository_policy(config_dir / "repository.yaml")
-    load_workspace_config(config_dir / "workspace.yaml")  # validated, not used further
+    load_workspace_config(config_dir / "workspace.yaml")
 
     logging.basicConfig(level=agent_cfg.log_level)
 
-    # ---------------------------------------------------------------------
-    # Build agent state
-    # ---------------------------------------------------------------------
     state = AgentState(
         repository_path=args.repo_path,
         task=args.task,
@@ -67,15 +46,12 @@ def main() -> None:
         print("Dry run enabled; no agent execution performed.")
         return
 
-    # ---------------------------------------------------------------------
-    # Create and run agent
-    # ---------------------------------------------------------------------
     agent = create_agent(
         model_name=agent_cfg.model,
-        max_steps=agent_cfg.max_steps,
     )
 
-    result = agent.run(state)
+    usage_limits = UsageLimits(request_limit=agent_cfg.max_steps)
+    result = agent.run_sync(state.task, deps=state, usage_limits=usage_limits)
     print(result.response)
 
 
