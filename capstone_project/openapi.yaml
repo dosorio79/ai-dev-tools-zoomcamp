@@ -1,0 +1,99 @@
+# API contract (single source of truth)
+openapi: 3.0.3
+info:
+  title: Agentic Micro-Learning API
+  description: >
+    API for generating short, focused micro-learning lessons using
+    an agent-based workflow. Each request generates a single
+    15-minute lesson and is logged for telemetry purposes.
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:8000
+
+paths:
+  /lesson:
+    post:
+      summary: Generate a micro-learning lesson
+      operationId: generateLesson
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonRequest"
+      responses:
+        "200":
+          description: Lesson generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LessonResponse"
+        "400":
+          description: Invalid request
+        "500":
+          description: Lesson generation failed
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+
+components:
+  schemas:
+    LessonRequest:
+      type: object
+      required:
+        - topic
+        - level
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Optional client-generated session identifier
+        topic:
+          type: string
+          description: Topic of the lesson
+        level:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+
+    LessonResponse:
+      type: object
+      required:
+        - objective
+        - total_minutes
+        - sections
+      properties:
+        objective:
+          type: string
+        total_minutes:
+          type: integer
+          example: 15
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/LessonSection"
+
+    LessonSection:
+      type: object
+      required:
+        - id
+        - title
+        - minutes
+        - content_markdown
+      properties:
+        id:
+          type: string
+          example: concept
+        title:
+          type: string
+        minutes:
+          type: integer
+        content_markdown:
+          type: string
+          description: Markdown-formatted lesson content
