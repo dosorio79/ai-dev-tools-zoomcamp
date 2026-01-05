@@ -2,15 +2,12 @@ from __future__ import annotations
 from pathlib import Path
 from pydantic import BaseModel, field_validator
 
-from .policy import RepositoryPolicy
-
 
 class AgentState(BaseModel):
     """Represents the state of the coding agent."""
 
     repository_path: Path
     task: str
-    policy: RepositoryPolicy
 
     @field_validator("repository_path")
     @classmethod

@@ -13,8 +13,6 @@ from config.config import (
     load_repository_policy,
     load_workspace_config,
 )
-from pydantic_ai import UsageLimits
-
 load_dotenv()
 
 
@@ -39,7 +37,6 @@ def main() -> None:
     state = AgentState(
         repository_path=args.repo_path,
         task=args.task,
-        policy=repo_policy,
     )
 
     if agent_cfg.dry_run:
@@ -48,11 +45,12 @@ def main() -> None:
 
     agent = create_agent(
         model_name=agent_cfg.model,
+        max_steps=agent_cfg.max_steps,
+        policy=repo_policy,
     )
 
-    usage_limits = UsageLimits(request_limit=agent_cfg.max_steps)
-    result = agent.run_sync(state.task, deps=state, usage_limits=usage_limits)
-    print(result.response)
+    result = agent.run(state)
+    print(result.data)
 
 
 if __name__ == "__main__":

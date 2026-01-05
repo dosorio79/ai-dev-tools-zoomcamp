@@ -4,8 +4,6 @@ from pathlib import Path
 from typing import List
 import subprocess
 
-from pydantic_ai import RunContext
-
 from agent.state import AgentState
 from agent.policy import RepositoryPolicy
 
@@ -34,18 +32,16 @@ def _list_files_for_policy(
     return results
 
 
-def list_files(ctx: RunContext[AgentState]) -> List[str]:
-    state = ctx.deps
-    return _list_files_for_policy(state.repository_path, state.policy)
+def list_files(state: AgentState, policy: RepositoryPolicy) -> List[str]:
+    return _list_files_for_policy(state.repository_path, policy)
 
 
 def read_file(
-    ctx: RunContext[AgentState],
+    state: AgentState,
+    policy: RepositoryPolicy,
     relative_path: str,
     max_chars: int = 10_000,
 ) -> str:
-    state = ctx.deps
-    policy = state.policy
     root = state.repository_path
     candidate = (root / relative_path).resolve()
 
@@ -67,8 +63,8 @@ def read_file(
     return content
 
 
-def run_django_check(ctx: RunContext[AgentState]) -> str:
-    root = ctx.deps.repository_path
+def run_django_check(state: AgentState) -> str:
+    root = state.repository_path
     manage_py = root / "manage.py"
 
     if not manage_py.exists():
