@@ -111,10 +111,16 @@ This telemetry-first design mirrors authenticated usage patterns and allows a fu
 docker compose up --build
 ```
 
+This starts the backend, MongoDB, and the frontend container.
+
 The API will be available at:
 
 - http://localhost:8000
 - OpenAPI docs: http://localhost:8000/docs
+
+The frontend container will be available at:
+
+- http://localhost:8080
 
 ### Frontend (mocked API)
 
