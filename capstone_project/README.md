@@ -103,6 +103,7 @@ This telemetry-first design mirrors authenticated usage patterns and allows a fu
 - Docker and docker-compose
 - Python 3.12+
 - uv
+- Node.js 18+
 
 ### Start the system
 
@@ -114,6 +115,20 @@ The API will be available at:
 
 - http://localhost:8000
 - OpenAPI docs: http://localhost:8000/docs
+
+### Frontend (mocked API)
+
+The frontend currently uses a mocked API client that follows `openapi.yaml` and does not call the backend.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The UI will be available at:
+
+- http://localhost:5173
 
 ---
 
@@ -129,6 +144,13 @@ Run tests with:
 
 ```bash
 uv run pytest
+```
+
+Frontend tests:
+
+```bash
+cd frontend
+npm test
 ```
 
 ---
