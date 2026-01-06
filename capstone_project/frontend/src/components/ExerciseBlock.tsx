@@ -1,0 +1,57 @@
+import { Lightbulb } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { CodeBlock } from './CodeBlock';
+
+interface ExerciseBlockProps {
+  content: string;
+}
+
+export function ExerciseBlock({ content }: ExerciseBlockProps) {
+  return (
+    <div className="my-6 rounded-lg border-2 border-primary/30 bg-accent/50 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 border-b border-primary/20">
+        <Lightbulb className="h-5 w-5 text-primary" />
+        <span className="font-semibold text-foreground">Exercise</span>
+      </div>
+      <div className="p-4 prose prose-sm max-w-none">
+        <ReactMarkdown
+          components={{
+            code({ className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '');
+              const isInline = !match;
+              
+              if (isInline) {
+                return (
+                  <code className="px-1.5 py-0.5 rounded bg-secondary/50 font-mono text-sm" {...props}>
+                    {children}
+                  </code>
+                );
+              }
+              
+              return (
+                <CodeBlock
+                  code={String(children).replace(/\n$/, '')}
+                  language={match[1]}
+                />
+              );
+            },
+            p({ children }) {
+              return <p className="text-foreground mb-3">{children}</p>;
+            },
+            strong({ children }) {
+              return <strong className="text-foreground font-semibold">{children}</strong>;
+            },
+            ol({ children }) {
+              return <ol className="list-decimal list-inside text-foreground mb-3 space-y-1">{children}</ol>;
+            },
+            ul({ children }) {
+              return <ul className="list-disc list-inside text-foreground mb-3 space-y-1">{children}</ul>;
+            },
+          }}
+        >
+          {content}
+        </ReactMarkdown>
+      </div>
+    </div>
+  );
+}
