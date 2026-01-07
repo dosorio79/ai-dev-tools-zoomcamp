@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { act, render } from '@testing-library/react';
 import { screen, fireEvent, waitFor } from '@testing-library/dom';
 import { BrowserRouter } from 'react-router-dom';
 import Home from '@/pages/Home';
@@ -38,6 +38,8 @@ vi.mock('@/api/lessonClient', () => ({
 
 vi.mock('@/api/executeLocally', () => ({
   executeLocally: vi.fn(),
+  preloadPyodide: vi.fn(),
+  isPyodideLoaded: vi.fn(),
 }));
 const renderHome = () => {
   return render(
@@ -50,6 +52,9 @@ const renderHome = () => {
 describe('Home Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('Lesson rendering from mocked API response', () => {
@@ -176,6 +181,8 @@ describe('Home Page', () => {
   describe('Python code block with Run button', () => {
     it('renders Run button for Python code and shows execution output', async () => {
       vi.mocked(lessonClient.generateLesson).mockResolvedValue(mockLesson);
+      vi.mocked(executionClient.isPyodideLoaded).mockReturnValue(true);
+      vi.mocked(executionClient.preloadPyodide).mockResolvedValue(undefined);
       vi.mocked(executionClient.executeLocally).mockResolvedValue({
         output: 'Hello from Python',
         error: null,
@@ -210,6 +217,8 @@ describe('Home Page', () => {
 
     it('shows guidance when execution returns no stdout', async () => {
       vi.mocked(lessonClient.generateLesson).mockResolvedValue(mockLesson);
+      vi.mocked(executionClient.isPyodideLoaded).mockReturnValue(true);
+      vi.mocked(executionClient.preloadPyodide).mockResolvedValue(undefined);
       vi.mocked(executionClient.executeLocally).mockResolvedValue({
         output: '',
         error: null,
@@ -235,6 +244,77 @@ describe('Home Page', () => {
         expect(screen.getByTestId('execution-output-empty')).toBeInTheDocument();
       });
       expect(screen.getByText(/no output yet/i)).toBeInTheDocument();
+    });
+
+    it('shows Stop button while running and hides it after completion', async () => {
+      vi.mocked(lessonClient.generateLesson).mockResolvedValue(mockLesson);
+      vi.mocked(executionClient.isPyodideLoaded).mockReturnValue(true);
+      vi.mocked(executionClient.preloadPyodide).mockResolvedValue(undefined);
+      let resolveRun: (value: { output: string; error: string | null; timestamp: string }) => void = () => {};
+      const runPromise = new Promise<{ output: string; error: string | null; timestamp: string }>((resolve) => {
+        resolveRun = resolve;
+      });
+      vi.mocked(executionClient.executeLocally).mockReturnValue(runPromise);
+
+      renderHome();
+
+      const input = screen.getByPlaceholderText(/pandas groupby/i);
+      fireEvent.change(input, { target: { value: 'test' } });
+
+      const generateButton = screen.getByRole('button', { name: /generate lesson/i });
+      fireEvent.click(generateButton);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('lesson-content')).toBeInTheDocument();
+      });
+
+      const runButton = screen.getByTestId('run-button');
+      fireEvent.click(runButton);
+
+      expect(screen.getByTestId('stop-button')).toBeInTheDocument();
+
+      resolveRun({
+        output: 'Done',
+        error: null,
+        timestamp: new Date().toISOString(),
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('stop-button')).not.toBeInTheDocument();
+      });
+    });
+
+    it('shows timeout hint when execution exceeds limit', async () => {
+      vi.mocked(lessonClient.generateLesson).mockResolvedValue(mockLesson);
+      vi.mocked(executionClient.isPyodideLoaded).mockReturnValue(true);
+      vi.mocked(executionClient.preloadPyodide).mockResolvedValue(undefined);
+      vi.mocked(executionClient.executeLocally).mockReturnValue(new Promise(() => {}));
+
+      renderHome();
+
+      const input = screen.getByPlaceholderText(/pandas groupby/i);
+      fireEvent.change(input, { target: { value: 'test' } });
+
+      const generateButton = screen.getByRole('button', { name: /generate lesson/i });
+      fireEvent.click(generateButton);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('lesson-content')).toBeInTheDocument();
+      });
+
+      vi.useFakeTimers();
+      try {
+        const runButton = screen.getByTestId('run-button');
+        fireEvent.click(runButton);
+
+        await act(async () => {
+          vi.advanceTimersByTime(10000);
+        });
+
+        expect(screen.getByTestId('execution-timeout-hint')).toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('does NOT show Run button for non-Python code blocks', async () => {

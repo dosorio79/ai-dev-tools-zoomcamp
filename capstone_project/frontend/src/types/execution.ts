@@ -4,4 +4,5 @@ export interface ExecutionResult {
   output: string;
   error: string | null;
   timestamp: string;
+  duration_ms?: number;
 }

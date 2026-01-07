@@ -20,6 +20,8 @@ const OPTIONAL_PYODIDE_PACKAGES = ['numpy', 'pandas'] as const;
 let pyodideInstance: PyodideInstance | null = null;
 let pyodideLoading: Promise<PyodideInstance> | null = null;
 
+export const isPyodideLoaded = () => pyodideInstance !== null;
+
 const getPyodideBase = () => {
   const envBase = import.meta.env?.VITE_PYODIDE_BASE as string | undefined;
   const base = envBase?.trim() || DEFAULT_PYODIDE_BASE;
@@ -207,8 +209,17 @@ export const executeLocally = async (
   language: Language,
   code: string
 ): Promise<ExecutionResult> => {
+  const startedAt = performance.now();
   if (language === 'python') {
-    return runPython(code);
+    const result = await runPython(code);
+    return {
+      ...result,
+      duration_ms: Math.round(performance.now() - startedAt),
+    };
   }
-  return runJavaScript(code);
+  const result = await runJavaScript(code);
+  return {
+    ...result,
+    duration_ms: Math.round(performance.now() - startedAt),
+  };
 };
