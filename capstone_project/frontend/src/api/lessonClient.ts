@@ -90,7 +90,7 @@ result_fast = df.groupby('category').agg({
     'quantity': 'sum'
 }).rename(columns={'value': 'mean', 'quantity': 'total'})
 
-print(result_fast)
+print(result_fast.head())
 \`\`\`
 
 The fast approach can be **10-50x faster** depending on data size and complexity.`
@@ -164,6 +164,9 @@ result = df.groupby('category').agg({'value': 'mean'})
 end = time.perf_counter()
 
 print(f"Execution time: {end - start:.4f} seconds")
+
+# Show a quick peek of the result to confirm it ran
+print(result.head())
 \`\`\`
 
 ### Next Steps

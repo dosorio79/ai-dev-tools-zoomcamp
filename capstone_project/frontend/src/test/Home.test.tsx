@@ -4,6 +4,7 @@ import { screen, fireEvent, waitFor } from '@testing-library/dom';
 import { BrowserRouter } from 'react-router-dom';
 import Home from '@/pages/Home';
 import * as lessonClient from '@/api/lessonClient';
+import * as executionClient from '@/api/executeLocally';
 import { LessonResponse } from '@/types/lesson';
 
 const mockLesson: LessonResponse = {
@@ -35,6 +36,9 @@ vi.mock('@/api/lessonClient', () => ({
   generateLesson: vi.fn(),
 }));
 
+vi.mock('@/api/executeLocally', () => ({
+  executeLocally: vi.fn(),
+}));
 const renderHome = () => {
   return render(
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -111,11 +115,23 @@ describe('Home Page', () => {
       });
     });
 
-    it('disables generate button when topic is empty', () => {
+    it('marks generate button as disabled when topic is empty', () => {
       renderHome();
 
       const generateButton = screen.getByRole('button', { name: /generate lesson/i });
-      expect(generateButton).toBeDisabled();
+      expect(generateButton).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('focuses and highlights topic input when submitting with empty topic', () => {
+      renderHome();
+
+      const input = screen.getByPlaceholderText(/pandas groupby/i);
+      const generateButton = screen.getByRole('button', { name: /generate lesson/i });
+
+      fireEvent.click(generateButton);
+
+      expect(input).toHaveFocus();
+      expect(input).toHaveAttribute('data-highlight', 'true');
     });
 
     it('shows loading state while generating', async () => {
@@ -158,8 +174,13 @@ describe('Home Page', () => {
   });
 
   describe('Python code block with Run button', () => {
-    it('renders Run button for Python code and shows stubbed message', async () => {
+    it('renders Run button for Python code and shows execution output', async () => {
       vi.mocked(lessonClient.generateLesson).mockResolvedValue(mockLesson);
+      vi.mocked(executionClient.executeLocally).mockResolvedValue({
+        output: 'Hello from Python',
+        error: null,
+        timestamp: new Date().toISOString(),
+      });
 
       renderHome();
 
@@ -180,11 +201,40 @@ describe('Home Page', () => {
       // Click Run button
       fireEvent.click(runButton);
 
-      // Verify stubbed execution message appears
+      // Verify execution output appears
       await waitFor(() => {
-        expect(screen.getByTestId('execution-message')).toBeInTheDocument();
+        expect(screen.getByTestId('execution-output')).toBeInTheDocument();
       });
-      expect(screen.getByText(/execution not enabled yet/i)).toBeInTheDocument();
+      expect(screen.getByText(/hello from python/i)).toBeInTheDocument();
+    });
+
+    it('shows guidance when execution returns no stdout', async () => {
+      vi.mocked(lessonClient.generateLesson).mockResolvedValue(mockLesson);
+      vi.mocked(executionClient.executeLocally).mockResolvedValue({
+        output: '',
+        error: null,
+        timestamp: new Date().toISOString(),
+      });
+
+      renderHome();
+
+      const input = screen.getByPlaceholderText(/pandas groupby/i);
+      fireEvent.change(input, { target: { value: 'test' } });
+
+      const generateButton = screen.getByRole('button', { name: /generate lesson/i });
+      fireEvent.click(generateButton);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('lesson-content')).toBeInTheDocument();
+      });
+
+      const runButton = screen.getByTestId('run-button');
+      fireEvent.click(runButton);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('execution-output-empty')).toBeInTheDocument();
+      });
+      expect(screen.getByText(/no output yet/i)).toBeInTheDocument();
     });
 
     it('does NOT show Run button for non-Python code blocks', async () => {

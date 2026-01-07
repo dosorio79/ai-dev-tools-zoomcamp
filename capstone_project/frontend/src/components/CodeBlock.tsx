@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Play, Copy, Check } from 'lucide-react';
+import { Play, Copy, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { executeLocally } from '@/api/executeLocally';
+import type { ExecutionResult } from '@/types/execution';
 
 interface CodeBlockProps {
   code: string;
@@ -11,9 +13,11 @@ interface CodeBlockProps {
 
 export function CodeBlock({ code, language }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
-  const [executed, setExecuted] = useState(false);
+  const [result, setResult] = useState<ExecutionResult | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
 
-  const isPython = language.toLowerCase() === 'python';
+  const normalizedLanguage = language.toLowerCase();
+  const isPython = normalizedLanguage === 'python';
   const panelBorderClass = isPython ? 'border-neutral-800' : 'border-border';
   const headerClass = isPython
     ? 'bg-neutral-950 text-neutral-200 border-neutral-800'
@@ -27,8 +31,24 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   };
 
   const handleRun = () => {
-    setExecuted(true);
-    setTimeout(() => setExecuted(false), 3000);
+    if (!isPython || isRunning) return;
+    setIsRunning(true);
+    setResult(null);
+
+    executeLocally('python', code)
+      .then((executionResult) => {
+        setResult(executionResult);
+      })
+      .catch((error: unknown) => {
+        setResult({
+          output: '',
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString(),
+        });
+      })
+      .finally(() => {
+        setIsRunning(false);
+      });
   };
 
   return (
@@ -55,9 +75,14 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
               onClick={handleRun}
               className="h-7 px-3 gap-1.5"
               data-testid="run-button"
+              disabled={isRunning}
             >
-              <Play className="h-3 w-3" />
-              Run
+              {isRunning ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Play className="h-3 w-3" />
+              )}
+              {isRunning ? 'Running' : 'Run'}
             </Button>
           )}
         </div>
@@ -74,12 +99,32 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
       >
         {code}
       </SyntaxHighlighter>
-      {executed && (
-        <div 
-          className="px-4 py-2 bg-accent border-t border-border text-sm text-accent-foreground"
-          data-testid="execution-message"
-        >
-          ⚡ Execution not enabled yet
+      {result && (
+        <div className="px-4 py-3 bg-accent border-t border-border text-sm text-accent-foreground">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">Output</div>
+          {result.output ? (
+            <pre
+              className="mt-2 whitespace-pre-wrap font-mono text-xs text-foreground"
+              data-testid="execution-output"
+            >
+              {result.output}
+            </pre>
+          ) : (
+            <div className="mt-2 text-xs text-muted-foreground" data-testid="execution-output-empty">
+              No output yet. To see results, add a `print(...)` statement.
+            </div>
+          )}
+          {result.error && (
+            <div className="mt-3">
+              <div className="text-xs uppercase tracking-wide text-red-500/80">Error</div>
+              <pre
+                className="mt-2 whitespace-pre-wrap font-mono text-xs text-red-500"
+                data-testid="execution-error"
+              >
+                {result.error}
+              </pre>
+            </div>
+          )}
         </div>
       )}
     </div>

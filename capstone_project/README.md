@@ -54,6 +54,12 @@ The API contract is defined using **OpenAPI** (`openapi.yaml`) and serves as the
 
 The frontend was developed contract-first using mocked responses derived from this specification.
 
+## Frontend code execution
+
+The frontend can execute Python snippets in lessons using Pyodide (running in the browser). Python code blocks include a Run button and display stdout output. If a snippet does not print anything, the UI prompts the learner to add a `print(...)` statement.
+
+You can override the Pyodide base URL with `VITE_PYODIDE_BASE` (defaults to the jsDelivr CDN).
+
 ---
 
 ## Agent-based workflow
@@ -134,7 +140,7 @@ npm run dev
 
 The UI will be available at:
 
-- http://localhost:5173
+- http://localhost:8080
 
 ---
 

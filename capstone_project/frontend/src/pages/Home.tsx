@@ -31,7 +31,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [lesson, setLesson] = useState<LessonResponse | null>(null);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [topicNeedsAttention, setTopicNeedsAttention] = useState(false);
   const topicInputRef = useRef<HTMLInputElement | null>(null);
+  const isTopicEmpty = !topic.trim();
 
   useEffect(() => {
     if (!isLoading) {
@@ -52,9 +54,20 @@ export default function Home() {
     }
   }, [lesson]);
 
+  useEffect(() => {
+    if (!topicNeedsAttention) return;
+    const timeout = setTimeout(() => setTopicNeedsAttention(false), 1600);
+    return () => clearTimeout(timeout);
+  }, [topicNeedsAttention]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic.trim() || isLoading) return;
+    if (isLoading) return;
+    if (isTopicEmpty) {
+      setTopicNeedsAttention(true);
+      topicInputRef.current?.focus();
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -139,10 +152,20 @@ export default function Home() {
                     type="text"
                     placeholder="e.g., pandas groupby performance"
                     value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    className="h-12 text-base"
+                    onChange={(e) => {
+                      setTopic(e.target.value);
+                      if (topicNeedsAttention) {
+                        setTopicNeedsAttention(false);
+                      }
+                    }}
+                    className={`h-12 text-base transition ${
+                      topicNeedsAttention
+                        ? 'border-destructive ring-2 ring-destructive/50'
+                        : 'focus-visible:ring-2 focus-visible:ring-primary/60'
+                    }`}
                     disabled={isLoading}
                     ref={topicInputRef}
+                    data-highlight={topicNeedsAttention ? 'true' : 'false'}
                   />
                 </div>
 
@@ -185,8 +208,11 @@ export default function Home() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full h-12 text-base font-medium"
-                  disabled={!topic.trim() || isLoading}
+                  className={`w-full h-12 text-base font-medium ${
+                    isTopicEmpty && !isLoading ? 'opacity-60' : ''
+                  }`}
+                  disabled={isLoading}
+                  aria-disabled={isTopicEmpty || isLoading}
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">
