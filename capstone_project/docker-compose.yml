@@ -5,8 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/ulearn
+    env_file:
+      - .env
     depends_on:
       - mongo
 

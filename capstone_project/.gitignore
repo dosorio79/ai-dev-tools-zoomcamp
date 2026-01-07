@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+.tox/
+.nox/
+
+# Virtual environments
+.venv/
+venv/
+
+# Env files
+.env
+.env.*
+!.env-example
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.parcel-cache/
+.vite/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
