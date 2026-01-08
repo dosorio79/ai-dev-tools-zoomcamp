@@ -1,4 +1,6 @@
 # API contract tests
+from unittest.mock import patch
+
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -27,3 +29,14 @@ def test_lesson_endpoint():
     assert body["objective"].startswith("Learn pandas groupby performance")
     assert isinstance(body["sections"], list)
     assert body["sections"][0]["id"] == "concept"
+
+
+def test_lesson_inserts_telemetry():
+    with patch("app.services.lesson_service.insert_lesson_run") as mock_insert:
+        response = client.post("/lesson", json={"topic": "x", "level": "beginner"})
+        assert response.status_code == 200
+        mock_insert.assert_called_once()
+        doc = mock_insert.call_args.args[0]
+        assert doc["topic"] == "x"
+        assert doc["level"] == "beginner"
+        assert "session_id" in doc
