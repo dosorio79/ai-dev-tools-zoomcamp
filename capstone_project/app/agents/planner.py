@@ -1,4 +1,4 @@
-# LessonPlannerAgent
+# LessonPlannerAgent → decides structure
 from dataclasses import dataclass
 from typing import List
 

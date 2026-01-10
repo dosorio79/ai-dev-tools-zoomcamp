@@ -1,4 +1,4 @@
-# SectionContentAgent
+# SectionContentAgent → fills content
 from dataclasses import dataclass
 from typing import List
 
