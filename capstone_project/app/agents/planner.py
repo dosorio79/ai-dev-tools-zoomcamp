@@ -9,7 +9,7 @@ class PlannedSection:
     minutes: int
     
 class PlannerAgent:
-    def plan_lesson(self, topic: str, level: str) -> List[PlannedSection]:
+    def plan(self, topic: str, level: str) -> List[PlannedSection]:
         """
         Decides the structure of a lesson.
         For now, this is deterministic and hardcoded.
