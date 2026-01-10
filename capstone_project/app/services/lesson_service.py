@@ -1,9 +1,12 @@
-from app.models.api import LessonRequest, LessonResponse, LessonSection
-
+import logging
 from datetime import datetime, timezone
 from uuid import uuid4
 
+from app.models.api import LessonRequest, LessonResponse, LessonSection
+
 from app.services.mongo import insert_lesson_run
+
+logger = logging.getLogger(__name__)
 
 def generate_lesson(request: LessonRequest) -> LessonResponse:
     session_id = str(request.session_id) if request.session_id else str(uuid4())
@@ -34,7 +37,18 @@ def generate_lesson(request: LessonRequest) -> LessonResponse:
     # Attempt to insert telemetry data into MongoDB
     try:
         insert_lesson_run(telemetry)
-    except Exception:
+        logger.info(
+            "Telemetry insert succeeded run_id=%s session_id=%s",
+            telemetry["run_id"],
+            session_id,
+        )
+    except Exception as exc:
         # Best-effort telemetry: do not break the API if Mongo is unavailable
+        logger.warning(
+            "Telemetry insert failed run_id=%s session_id=%s",
+            telemetry["run_id"],
+            session_id,
+            exc_info=exc,
+        )
         pass
     return response
