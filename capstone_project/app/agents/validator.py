@@ -2,6 +2,8 @@
 
 from typing import List
 
+from app.models.agents import GeneratedSection
+
 class ValidatorAgent:
     """
     Validates a generated lesson before it is returned.
@@ -12,7 +14,7 @@ class ValidatorAgent:
     
     TARGET_TOTAL_MINUTES = 15
 
-    def validate(self, sections: List) -> List:
+    def validate(self, sections: List[GeneratedSection]) -> List[GeneratedSection]:
         total_minutes = sum(section.minutes for section in sections)
         if total_minutes == self.TARGET_TOTAL_MINUTES:
             return sections
@@ -33,7 +35,7 @@ class ValidatorAgent:
                     round(section.minutes * adjustment_factor),
                 )
                 accumulated_minutes += adjusted_minutes
-            # Create a new LessonSection with adjusted minutes
+            # Create a new GeneratedSection with adjusted minutes
             adjusted_section = section.__class__(
                 id=section.id,
                 title=section.title,

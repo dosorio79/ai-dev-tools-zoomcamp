@@ -1,18 +1,18 @@
 # Unit tests for planner / validator
 from app.agents.validator import ValidatorAgent
-from app.models.api import LessonSection
+from app.models.agents import GeneratedSection
 
 
 def test_validator_adjusts_minutes_to_target_total():
     validator = ValidatorAgent()
     sections = [
-        LessonSection(
+        GeneratedSection(
             id="intro",
             title="Intro",
             minutes=5,
             content_markdown="Intro content",
         ),
-        LessonSection(
+        GeneratedSection(
             id="deep-dive",
             title="Deep dive",
             minutes=5,

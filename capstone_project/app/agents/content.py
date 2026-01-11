@@ -1,16 +1,13 @@
-# ContentAgent → fills content
-from dataclasses import dataclass
 from typing import List
 
-@dataclass
-class GeneratedSection:
-    id: str
-    title: str
-    minutes: int
-    content_markdown: str
+from app.models.agents import GeneratedSection, PlannedSection
     
 class ContentAgent:
-    def generate(self, topic: str, planned_sections: List) -> List[GeneratedSection]:
+    def generate(
+        self,
+        topic: str,
+        planned_sections: List[PlannedSection],
+    ) -> List[GeneratedSection]:
         generated_sections: List[GeneratedSection] = []
 
         for section in planned_sections:

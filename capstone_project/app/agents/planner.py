@@ -1,12 +1,6 @@
-# PlannerAgent → decides structure
-from dataclasses import dataclass
 from typing import List
 
-@dataclass
-class PlannedSection:
-    id: str
-    title: str
-    minutes: int
+from app.models.agents import PlannedSection
     
 class PlannerAgent:
     def plan(self, topic: str, level: str) -> List[PlannedSection]:

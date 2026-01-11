@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from app.models.api import LessonRequest, LessonResponse, LessonSection
+from app.models.db import LessonRun
 from app.services.mongo import insert_lesson_run
 from app.agents.planner import PlannerAgent
 from app.agents.content import ContentAgent
@@ -44,29 +45,29 @@ def generate_lesson(request: LessonRequest) -> LessonResponse:
         ],
     )
     # Log the lesson generation request and response to MongoDB
-    telemetry = {
-        "run_id": str(uuid4()),
-        "session_id": session_id,
-        "topic": request.topic,
-        "level": request.level,
-        "created_at": datetime.now(timezone.utc),
-        "total_minutes": response.total_minutes,
-        "objective": response.objective,
-        "section_ids": [s.id for s in response.sections],
-    }
+    telemetry = LessonRun(
+        run_id=str(uuid4()),
+        session_id=session_id,
+        topic=request.topic,
+        level=request.level,
+        created_at=datetime.now(timezone.utc),
+        total_minutes=response.total_minutes,
+        objective=response.objective,
+        section_ids=[s.id for s in response.sections],
+    )
     # Attempt to insert telemetry data into MongoDB
     try:
-        insert_lesson_run(telemetry)
+        insert_lesson_run(telemetry.to_mongo())
         logger.info(
             "Telemetry insert succeeded run_id=%s session_id=%s",
-            telemetry["run_id"],
+            telemetry.run_id,
             session_id,
         )
     except Exception as exc:
         # Best-effort telemetry: do not break the API if Mongo is unavailable
         logger.warning(
             "Telemetry insert failed run_id=%s session_id=%s",
-            telemetry["run_id"],
+            telemetry.run_id,
             session_id,
             exc_info=exc,
         )
