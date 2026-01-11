@@ -18,7 +18,7 @@ The system is stateless from a user perspective. Persistence is limited to appen
 2) Planner produces a structured plan (sections with minute budgets).
 3) Content agent expands each section into Markdown.
 4) Validator confirms constraints (15 minutes total).
-5) Persist telemetry (request metadata + output summary).
+5) Persist telemetry (request metadata + output summary) after validating the telemetry record.
 6) Return the final `LessonResponse`.
 
 ## Error handling

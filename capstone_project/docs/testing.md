@@ -39,6 +39,7 @@ What is covered:
 - Agent planning and validation logic.
 - Lesson orchestration.
 - API contract and integration workflow.
+- Telemetry model validation (happy path and invalid level).
 
 If you prefer using the system interpreter instead of `uv`, ensure `pytest` is installed in your environment, then run:
 

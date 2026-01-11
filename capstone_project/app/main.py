@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from app.api import lesson
-import logging
 
-logging.basicConfig(level=logging.INFO)
+from app.api import lesson
+from app.core.logging import setup_logging
+
+setup_logging()
 
 app = FastAPI(
     title="uLearn API",
