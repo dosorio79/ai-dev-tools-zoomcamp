@@ -66,9 +66,9 @@ You can override the Pyodide base URL with `VITE_PYODIDE_BASE` (defaults to the 
 
 Lesson generation is implemented using multiple cooperating agents:
 
-- **LessonPlannerAgent** – defines lesson structure and time budget
-- **SectionContentAgent** – generates Markdown content per section
-- **LessonValidatorAgent** – validates lesson length, scope, and difficulty
+- **PlannerAgent** – defines lesson structure and time budget
+- **ContentAgent** – generates Markdown content per section
+- **ValidatorAgent** – ensures lesson length is 15 minutes by adjusting section minutes
 
 A detailed description of agent responsibilities and orchestration can be found in `docs/agent-architecture.md`.
 
