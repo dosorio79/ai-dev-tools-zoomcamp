@@ -18,7 +18,7 @@ class PlannerAgent:
             PlannedSection(
                 id="concept",
                 title="Core concept",
-                minutes=6,
+                minutes=15,
             )
         ]
         
