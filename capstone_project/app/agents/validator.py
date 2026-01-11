@@ -1,4 +1,4 @@
-# LessonValidatorAgent → checks consistency and safety
+# ValidatorAgent → checks consistency and safety
 
 from typing import List
 
