@@ -8,23 +8,23 @@ The system is stateless from a user perspective. Persistence is limited to appen
 
 ## Agents and responsibilities
 
-- LessonPlannerAgent: Creates the lesson outline, section titles, and time budget per section.
-- SectionContentAgent: Generates Markdown content for each planned section.
-- LessonValidatorAgent: Checks total time, section structure, and difficulty alignment.
+- PlannerAgent: Creates the lesson outline, section titles, and time budget per section.
+- ContentAgent: Generates Markdown content for each planned section.
+- ValidatorAgent: Ensures the total lesson time is 15 minutes (currently by adjusting section minutes).
 
 ## Orchestration flow
 
 1) Receive `POST /lesson` request.
-2) Planner produces a structured plan (objective + sections with minute budgets).
+2) Planner produces a structured plan (sections with minute budgets).
 3) Content agent expands each section into Markdown.
-4) Validator confirms constraints (15 minutes total, scope, level).
-5) Persist telemetry (request, output, validation metadata).
+4) Validator confirms constraints (15 minutes total).
+5) Persist telemetry (request metadata + output summary).
 6) Return the final `LessonResponse`.
 
 ## Error handling
 
-- Validation failures return a 400 error with a human-readable message.
-- Generation errors return a 500 error and are logged for telemetry.
+- Validation is currently best-effort and adjusts section minutes; it does not reject requests.
+- Generation errors would return a 500 error and are logged for telemetry.
 - No retries or background processing are used.
 
 ## Data contracts
