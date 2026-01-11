@@ -28,11 +28,23 @@ Location: project root
 uv run pytest
 ```
 
+If you see cache permission errors, you can run with a project-local cache:
+
+```bash
+UV_CACHE_DIR=.uv-cache uv run pytest
+```
+
 What is covered:
 
 - Agent planning and validation logic.
 - Lesson orchestration.
 - API contract and integration workflow.
+
+If you prefer using the system interpreter instead of `uv`, ensure `pytest` is installed in your environment, then run:
+
+```bash
+python -m pytest
+```
 
 ## Notes
 

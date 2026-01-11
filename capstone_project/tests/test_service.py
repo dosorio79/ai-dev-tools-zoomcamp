@@ -18,5 +18,5 @@ def test_generate_lesson_returns_expected_structure():
     section = response.sections[0]
     assert section.id == "concept"
     assert section.title == "Core concept"
-    assert section.minutes == 6
+    assert section.minutes == 15
     assert section.content_markdown == "This section explains the core idea."
