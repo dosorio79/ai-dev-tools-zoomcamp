@@ -1,6 +1,8 @@
 # Lesson orchestration tests
 import pytest
 
+from datetime import datetime, timezone
+
 from pydantic import ValidationError
 
 from app.models.api import LessonRequest
@@ -38,3 +40,19 @@ def test_lesson_run_validation_rejects_invalid_level():
             objective="Learn vector databases at a beginner level in 15 minutes.",
             section_ids=["concept"],
         )
+
+
+def test_lesson_run_validation_accepts_valid_payload():
+    lesson_run = LessonRun(
+        run_id="run-456",
+        session_id="session-456",
+        topic="vector databases",
+        level="beginner",
+        created_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        total_minutes=15,
+        objective="Learn vector databases at a beginner level in 15 minutes.",
+        section_ids=["concept"],
+    )
+
+    assert lesson_run.run_id == "run-456"
+    assert lesson_run.level == "beginner"

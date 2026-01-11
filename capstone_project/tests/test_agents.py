@@ -24,3 +24,32 @@ def test_validator_adjusts_minutes_to_target_total():
 
     assert sum(section.minutes for section in adjusted) == validator.TARGET_TOTAL_MINUTES
     assert [section.id for section in adjusted] == ["intro", "deep-dive"]
+
+
+def test_validator_rounds_minutes_with_multiple_sections():
+    validator = ValidatorAgent()
+    sections = [
+        GeneratedSection(
+            id="intro",
+            title="Intro",
+            minutes=2,
+            content_markdown="Intro content",
+        ),
+        GeneratedSection(
+            id="core",
+            title="Core",
+            minutes=7,
+            content_markdown="Core content",
+        ),
+        GeneratedSection(
+            id="wrap",
+            title="Wrap",
+            minutes=9,
+            content_markdown="Wrap content",
+        ),
+    ]
+
+    adjusted = validator.validate(sections)
+
+    assert sum(section.minutes for section in adjusted) == validator.TARGET_TOTAL_MINUTES
+    assert [section.id for section in adjusted] == ["intro", "core", "wrap"]
