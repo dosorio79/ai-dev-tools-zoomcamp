@@ -1,3 +1,5 @@
+"""FastAPI application entrypoint."""
+
 from fastapi import FastAPI
 
 from app.api import lesson
@@ -13,6 +15,7 @@ app = FastAPI(
 
 @app.get("/health", tags=["Health"])
 async def health_check():
+    """Return a simple health indicator."""
     return {"status": "healthy"}
 
 app.include_router(lesson.router)

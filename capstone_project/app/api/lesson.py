@@ -1,3 +1,5 @@
+"""API routes for lesson generation."""
+
 from fastapi import APIRouter
 
 from app.models.api import LessonRequest, LessonResponse
@@ -8,5 +10,6 @@ router = APIRouter(prefix="/lesson", tags=["Lessons"])
 
 @router.post("/", response_model=LessonResponse)
 async def create_lesson(request: LessonRequest) -> LessonResponse:
+    """Generate a lesson response for the given request."""
     return generate_lesson(request)
         

@@ -1,3 +1,5 @@
+"""Lesson service orchestration and telemetry logging."""
+
 import logging
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -18,6 +20,7 @@ validator_agent = ValidatorAgent()
 
 
 def generate_lesson(request: LessonRequest) -> LessonResponse:
+    """Generate a lesson using the agent pipeline and record telemetry."""
     session_id = str(request.session_id) if request.session_id else str(uuid4())
     
     # create agentic pipeline

@@ -1,4 +1,4 @@
-# ValidatorAgent → checks consistency and safety
+"""Validator agent for lesson structure and content rules."""
 
 from typing import List
 
@@ -16,6 +16,8 @@ class ValidatorAgent:
     MIN_SECTION_MINUTES = 3
 
     def validate(self, sections: List[GeneratedSection]) -> List[GeneratedSection]:
+        """Validate sections and normalize minutes to the target total."""
+        # Guardrails: structural sanity checks
         if not sections:
             raise ValueError("Lesson must include at least one section.")
 
@@ -23,6 +25,7 @@ class ValidatorAgent:
         if len(set(section_ids)) != len(section_ids):
             raise ValueError("Section IDs must be unique.")
 
+        # Content and minimum duration checks
         for section in sections:
             if not section.content_markdown or not section.content_markdown.strip():
                 raise ValueError("Section content must be non-empty.")
@@ -35,6 +38,7 @@ class ValidatorAgent:
         if total_minutes == self.TARGET_TOTAL_MINUTES:
             return sections
 
+        # Ensure the minimum minutes constraint is feasible before scaling
         if self.MIN_SECTION_MINUTES * len(sections) > self.TARGET_TOTAL_MINUTES:
             raise ValueError("Minimum section length exceeds total lesson time.")
         

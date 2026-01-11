@@ -1,13 +1,13 @@
+"""Planner agent responsible for lesson structure."""
+
 from typing import List
 
 from app.models.agents import PlannedSection
     
 class PlannerAgent:
+    """Generates a deterministic lesson plan."""
     def plan(self, topic: str, level: str) -> List[PlannedSection]:
-        """
-        Decides the structure of a lesson.
-        For now, this is deterministic and hardcoded.
-        """
+        """Return a section outline based on topic and level."""
         return [
             PlannedSection(
                 id="concept",

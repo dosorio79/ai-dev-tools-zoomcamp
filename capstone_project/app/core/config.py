@@ -1,4 +1,4 @@
-# Environment & settings
+"""Environment-backed configuration settings."""
 import os
 
 # Database configuration
