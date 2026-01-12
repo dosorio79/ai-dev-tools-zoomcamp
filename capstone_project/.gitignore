@@ -34,3 +34,7 @@ build/
 .idea/
 .DS_Store
 Thumbs.db
+
+# CSVs
+*.csv
+*.tsv
