@@ -71,6 +71,7 @@ Lesson generation is implemented using multiple cooperating agents:
 - **ValidatorAgent** – ensures lesson length is 15 minutes by adjusting section minutes
 
 A detailed description of agent responsibilities and orchestration can be found in `docs/agent-architecture.md`.
+The lesson format PoC and validator rule candidates are summarized in `docs/lesson-generation-poc.md`.
 
 Rules and constraints for AI-assisted development are defined in `AGENTS.md`.
 
