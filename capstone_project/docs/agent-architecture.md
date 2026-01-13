@@ -9,17 +9,18 @@ The system is stateless from a user perspective. Persistence is limited to appen
 ## Agents and responsibilities
 
 - PlannerAgent: Creates the lesson outline, section titles, and time budget per section.
-- ContentAgent: Generates Markdown content for each planned section.
-- ValidatorAgent: Enforces structural guardrails (non-empty content, unique section IDs, minimum minutes) and normalizes total time to 15 minutes.
+- ContentAgent: Generates structured content blocks for each planned section.
+- ValidatorAgent: Enforces structural guardrails (unique section IDs, valid blocks, minimum minutes) and normalizes total time to 15 minutes.
 
 ## Orchestration flow
 
 1) Receive `POST /lesson` request.
 2) Planner produces a structured plan (sections with minute budgets).
-3) Content agent expands each section into Markdown.
+3) Content agent generates structured blocks per section.
 4) Validator enforces structural rules and normalizes total time to 15 minutes.
-5) Persist telemetry (request metadata + output summary) after validating the telemetry record.
-6) Return the final `LessonResponse`.
+5) Renderer converts blocks to Markdown for the API response.
+6) Persist telemetry (request metadata + output summary) after validating the telemetry record.
+7) Return the final `LessonResponse`.
 
 ## Error handling
 
@@ -33,6 +34,7 @@ All external contracts are defined in `openapi.yaml`. Internal models align with
 
 - `app/models/api.py` for request/response schema mapping.
 - `app/models/db.py` for telemetry documents.
+- `app/services/markdown_renderer.py` for block-to-Markdown rendering.
 
 ## Constraints
 

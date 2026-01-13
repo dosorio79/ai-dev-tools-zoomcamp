@@ -15,7 +15,7 @@ This document describes the system structure and data flow for the uLearn capsto
 1) User submits a topic and difficulty.
 2) Frontend calls the mocked client (or later the real backend).
 3) Backend orchestrates lesson generation via agents.
-4) Backend validates and returns a `LessonResponse`.
+4) Backend validates, renders blocks to Markdown, and returns a `LessonResponse`.
 5) Backend writes telemetry to MongoDB.
 6) Frontend renders the lesson sections with Markdown and syntax highlighting.
 
@@ -24,6 +24,7 @@ This document describes the system structure and data flow for the uLearn capsto
 - `app/main.py`: FastAPI app creation and wiring.
 - `app/api/lesson.py`: HTTP boundary for `/lesson`.
 - `app/services/lesson_service.py`: Orchestrates agent flow.
+- `app/services/markdown_renderer.py`: Deterministic block-to-Markdown rendering.
 - `app/agents/*`: Planner, content, and validator agents.
 - `app/services/mongo.py`: MongoDB client and persistence helpers.
 - `app/models/api.py`: Pydantic models aligned with `openapi.yaml`.

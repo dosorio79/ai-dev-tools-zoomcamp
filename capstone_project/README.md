@@ -15,9 +15,9 @@ The system:
 - Accepts a topic and difficulty level from the user
 - Uses multiple AI agents to:
   - Plan a pedagogically scoped lesson
-  - Generate structured lesson content
-  - Validate the lesson against time and level constraints
-- Returns the lesson as structured Markdown
+  - Generate structured content blocks
+  - Validate lesson structure and time constraints
+- Renders structured blocks into Markdown for the frontend
 - Logs each lesson generation run for telemetry purposes
 
 The system is stateless from a user perspective, but includes a persistence layer for session-level logging.
@@ -67,8 +67,8 @@ You can override the Pyodide base URL with `VITE_PYODIDE_BASE` (defaults to the 
 Lesson generation is implemented using multiple cooperating agents:
 
 - **PlannerAgent** – defines lesson structure and time budget
-- **ContentAgent** – generates Markdown content per section
-- **ValidatorAgent** – ensures lesson length is 15 minutes by adjusting section minutes
+- **ContentAgent** – generates structured content blocks per section
+- **ValidatorAgent** – enforces structure and normalizes section minutes to 15 total
 
 A detailed description of agent responsibilities and orchestration can be found in `docs/agent-architecture.md`.
 The lesson format PoC and validator rule candidates are summarized in `docs/lesson-generation-poc.md`.
