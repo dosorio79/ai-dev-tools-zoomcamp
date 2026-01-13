@@ -10,6 +10,7 @@ from app.services.mongo import insert_lesson_run
 from app.agents.planner import PlannerAgent
 from app.agents.content import ContentAgent
 from app.agents.validator import ValidatorAgent
+from app.models.agents import ContentBlock
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,20 @@ logger = logging.getLogger(__name__)
 planner_agent = PlannerAgent()
 content_agent = ContentAgent()
 validator_agent = ValidatorAgent()
+
+def _render_blocks_to_markdown(blocks: list[ContentBlock]) -> str:
+    rendered_parts: list[str] = []
+    for block in blocks:
+        content = block.content.strip()
+        if block.type == "text":
+            rendered_parts.append(content)
+        elif block.type == "python":
+            rendered_parts.append(f"```python\n{content}\n```")
+        elif block.type == "exercise":
+            rendered_parts.append(f":::exercise:::\n{content}\n:::")
+        else:
+            raise ValueError(f"Unsupported block type: {block.type}")
+    return "\n\n".join(rendered_parts)
 
 
 def generate_lesson(request: LessonRequest) -> LessonResponse:
@@ -43,7 +58,7 @@ def generate_lesson(request: LessonRequest) -> LessonResponse:
                 id=s.id,
                 title=s.title,
                 minutes=s.minutes,
-                content_markdown=s.content_markdown,
+                content_markdown=_render_blocks_to_markdown(s.blocks),
             ) for s in validated_sections
         ],
     )

@@ -1,8 +1,9 @@
-"""Agent-level dataclasses shared across planner/content/validator."""
+"""Agent-level dataclasses shared across planner, content, and validator."""
 
 from dataclasses import dataclass
+from typing import List, Literal
 
-__all__ = ["PlannedSection", "GeneratedSection"]
+__all__ = ["PlannedSection", "ContentBlock", "GeneratedSection"]
 
 
 @dataclass
@@ -13,10 +14,20 @@ class PlannedSection:
     minutes: int
 
 
+BlockType = Literal["text", "python", "exercise"]
+
+
+@dataclass
+class ContentBlock:
+    """Atomic content block produced by the content agent."""
+    type: BlockType
+    content: str
+
+
 @dataclass
 class GeneratedSection:
-    """Generated section output with content from the content agent."""
+    """Generated section with structured content blocks."""
     id: str
     title: str
     minutes: int
-    content_markdown: str
+    blocks: List[ContentBlock]

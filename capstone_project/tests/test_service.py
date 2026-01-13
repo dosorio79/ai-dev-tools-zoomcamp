@@ -25,7 +25,9 @@ def test_generate_lesson_returns_expected_structure():
     assert sum(section.minutes for section in response.sections) == 15
     assert response.sections[0].id == "concept"
     assert response.sections[0].title == "Core concept"
-    assert response.sections[0].content_markdown == "This section explains the core idea."
+    assert response.sections[0].content_markdown == (
+        "This section introduces the key ideas behind vector databases."
+    )
 
 
 def test_lesson_run_validation_rejects_invalid_level():

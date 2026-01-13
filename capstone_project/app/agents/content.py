@@ -1,26 +1,66 @@
-"""Content agent that expands planned sections into Markdown."""
+"""Content agent that expands planned sections into structured blocks."""
 
 from typing import List
 
-from app.models.agents import GeneratedSection, PlannedSection
-    
+from app.models.agents import PlannedSection, GeneratedSection, ContentBlock
+
+
 class ContentAgent:
-    """Generates section content for a lesson plan."""
+    """Generates structured lesson content blocks."""
+
     def generate(
         self,
         topic: str,
         planned_sections: List[PlannedSection],
     ) -> List[GeneratedSection]:
-        """Return sections populated with Markdown content."""
         generated_sections: List[GeneratedSection] = []
 
         for section in planned_sections:
+            blocks: list[ContentBlock] = []
+
+            # Base explanatory text (always present)
+            blocks.append(
+                ContentBlock(
+                    type="text",
+                    content=f"This section introduces the key ideas behind {topic}.",
+                )
+            )
+
+            # Example section: include minimal runnable Python
+            if section.id == "example":
+                blocks.append(
+                    ContentBlock(
+                        type="python",
+                        content=(
+                            "import pandas as pd\n\n"
+                            "df = pd.DataFrame({\n"
+                            "    'group': ['A', 'B', 'A'],\n"
+                            "    'value': [10, 20, 30]\n"
+                            "})\n\n"
+                            "result = df.groupby('group')['value'].sum()\n"
+                            "print(result)"
+                        ),
+                    )
+                )
+
+            # Exercise section: explicit exercise block
+            if section.id == "exercise":
+                blocks.append(
+                    ContentBlock(
+                        type="exercise",
+                        content=(
+                            f"Create a small dataset related to '{topic}' and "
+                            "apply the concepts from this lesson."
+                        ),
+                    )
+                )
+
             generated_sections.append(
                 GeneratedSection(
                     id=section.id,
                     title=section.title,
                     minutes=section.minutes,
-                    content_markdown="This section explains the core idea.",
+                    blocks=blocks,
                 )
             )
 

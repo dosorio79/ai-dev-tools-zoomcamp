@@ -12,7 +12,12 @@ class PlannerAgent:
             PlannedSection(
                 id="concept",
                 title="Core concept",
-                minutes=15,
+                minutes=7,
+            ),
+            PlannedSection(
+                id="example",
+                title="Worked example",
+                minutes=8,
             )
         ]
         
