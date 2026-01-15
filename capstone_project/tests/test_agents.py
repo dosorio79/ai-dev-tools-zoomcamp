@@ -1,10 +1,34 @@
-# Unit tests for planner / validator
+# Unit tests for validator and LLM content parsing
+import importlib
+import sys
+import types
+
 import pytest
 
 from app.agents.validator import ValidatorAgent
 from app.models.agents import ContentBlock, GeneratedSection
+from app.agents.content_llm_models import LLMLessonModel
 
 
+def _load_content_llm():
+    try:
+        return importlib.import_module("app.agents.content_llm")
+    except ModuleNotFoundError as exc:
+        if exc.name != "pydantic_ai":
+            raise
+        dummy = types.ModuleType("pydantic_ai")
+
+        class Agent:
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+        dummy.Agent = Agent
+        sys.modules["pydantic_ai"] = dummy
+        return importlib.import_module("app.agents.content_llm")
+
+
+# ValidatorAgent tests
+@pytest.mark.unit
 def test_validator_adjusts_minutes_to_target_total():
     validator = ValidatorAgent()
     sections = [
@@ -31,6 +55,7 @@ def test_validator_adjusts_minutes_to_target_total():
     assert [section.id for section in adjusted] == ["concept", "example"]
 
 
+@pytest.mark.unit
 def test_validator_rounds_minutes_with_multiple_sections():
     validator = ValidatorAgent()
     sections = [
@@ -63,6 +88,7 @@ def test_validator_rounds_minutes_with_multiple_sections():
     assert [section.id for section in adjusted] == ["concept", "example", "exercise"]
 
 
+@pytest.mark.unit
 def test_validator_requires_non_empty_content():
     validator = ValidatorAgent()
     sections = [
@@ -78,6 +104,7 @@ def test_validator_requires_non_empty_content():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_requires_minimum_minutes():
     validator = ValidatorAgent()
     sections = [
@@ -96,6 +123,7 @@ def test_validator_requires_minimum_minutes():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_requires_at_least_one_section():
     validator = ValidatorAgent()
 
@@ -103,6 +131,7 @@ def test_validator_requires_at_least_one_section():
         validator.validate([])
 
 
+@pytest.mark.unit
 def test_validator_requires_unique_section_ids():
     validator = ValidatorAgent()
     sections = [
@@ -127,6 +156,7 @@ def test_validator_requires_unique_section_ids():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_rejects_invalid_section_ids():
     validator = ValidatorAgent()
     sections = [
@@ -145,6 +175,7 @@ def test_validator_rejects_invalid_section_ids():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_rejects_too_many_sections():
     validator = ValidatorAgent()
     sections = [
@@ -181,6 +212,7 @@ def test_validator_rejects_too_many_sections():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_requires_python_block_across_lesson():
     validator = ValidatorAgent()
     sections = [
@@ -196,6 +228,7 @@ def test_validator_requires_python_block_across_lesson():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_rejects_invalid_block_type():
     validator = ValidatorAgent()
     sections = [
@@ -211,6 +244,7 @@ def test_validator_rejects_invalid_block_type():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_rejects_invalid_python_syntax():
     validator = ValidatorAgent()
     sections = [
@@ -226,6 +260,7 @@ def test_validator_rejects_invalid_python_syntax():
         validator.validate(sections)
 
 
+@pytest.mark.unit
 def test_validator_strict_minutes_requires_exact_total():
     validator = ValidatorAgent()
     sections = [
@@ -250,6 +285,7 @@ def test_validator_strict_minutes_requires_exact_total():
         validator.validate(sections, strict_minutes=True)
 
 
+@pytest.mark.unit
 def test_validator_json_only_response_rejects_extra_keys():
     validator = ValidatorAgent()
     payload = {
@@ -269,3 +305,55 @@ def test_validator_json_only_response_rejects_extra_keys():
 
     with pytest.raises(ValueError, match="extra keys"):
         validator.validate_json_only_response(payload)
+
+
+# ContentAgentLLM parsing tests
+@pytest.mark.llm
+def test_content_llm_parse_result_accepts_dict():
+    content_llm = _load_content_llm()
+    agent = content_llm.ContentAgentLLM.__new__(content_llm.ContentAgentLLM)
+    payload = {
+        "sections": [
+            {
+                "id": "concept",
+                "title": "Core concept",
+                "minutes": 7,
+                "blocks": [
+                    {"type": "text", "content": "Intro content."},
+                    {"type": "python", "content": "print('hello')"},
+                ],
+            }
+        ]
+    }
+
+    sections = agent._parse_result(payload)
+
+    assert len(sections) == 1
+    assert sections[0].id == "concept"
+    assert sections[0].blocks[1].type == "python"
+
+
+@pytest.mark.llm
+def test_content_llm_parse_result_accepts_model():
+    content_llm = _load_content_llm()
+    agent = content_llm.ContentAgentLLM.__new__(content_llm.ContentAgentLLM)
+    payload = {
+        "sections": [
+            {
+                "id": "example",
+                "title": "Worked example",
+                "minutes": 8,
+                "blocks": [
+                    {"type": "text", "content": "Example content."},
+                    {"type": "python", "content": "print('ok')"},
+                ],
+            }
+        ]
+    }
+    model = LLMLessonModel.model_validate(payload)
+
+    sections = agent._parse_result(model)
+
+    assert len(sections) == 1
+    assert sections[0].id == "example"
+    assert sections[0].blocks[0].content == "Example content."

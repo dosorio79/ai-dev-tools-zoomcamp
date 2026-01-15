@@ -1,5 +1,9 @@
+import pytest
+
 from app.services.markdown_renderer import render_blocks_to_markdown
 from app.models.agents import ContentBlock
+
+pytestmark = pytest.mark.unit
 
 
 def test_render_blocks_to_markdown():

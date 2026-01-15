@@ -9,6 +9,8 @@ from app.models.api import LessonRequest
 from app.models.db import LessonRun
 from app.services.lesson_service import generate_lesson
 
+pytestmark = pytest.mark.unit
+
 
 def test_generate_lesson_returns_expected_structure():
     request = LessonRequest(

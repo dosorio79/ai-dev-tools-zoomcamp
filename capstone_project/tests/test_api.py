@@ -3,6 +3,9 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 from app.main import app
+import pytest
+
+pytestmark = pytest.mark.api
 
 client = TestClient(app)
 

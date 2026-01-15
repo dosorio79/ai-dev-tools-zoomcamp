@@ -9,6 +9,7 @@ dependencies = [
   "uvicorn[standard]>=0.30.0",
   "pymongo>=4.7.0",
   "openai>=1.40.0",
+  "pydantic-ai>=1.42.0",
 ]
 
 [project.optional-dependencies]
@@ -24,3 +25,9 @@ dev = [
 testpaths = ["tests"]
 addopts = "-q"
 pythonpath = ["."]
+markers = [
+  "unit: unit tests",
+  "api: API contract tests",
+  "integration: integration tests",
+  "llm: LLM content agent parsing tests",
+]

@@ -9,6 +9,7 @@ from app.services.mongo import get_collection
 import pytest
 
 pytest.skip("Integration test: requires MongoDB running in Docker", allow_module_level=True)
+pytestmark = pytest.mark.integration
 
 def test_generate_lesson_inserts_telemetry_document():
     session_id = str(uuid4())
