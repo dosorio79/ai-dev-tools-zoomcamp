@@ -16,6 +16,7 @@ from app.services.markdown_renderer import render_blocks_to_markdown
 
 logger = logging.getLogger(__name__)
 
+# Feature flag to toggle between standard content agent and LLM-backed content agent
 USE_LLM_CONTENT = os.getenv("USE_LLM_CONTENT", "false").lower() == "true"
 
 # instantiate agents
