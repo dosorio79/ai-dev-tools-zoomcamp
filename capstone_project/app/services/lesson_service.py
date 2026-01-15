@@ -1,6 +1,7 @@
 """Lesson service orchestration and telemetry logging."""
 
 import logging
+import os
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -9,14 +10,17 @@ from app.models.db import LessonRun
 from app.services.mongo import insert_lesson_run
 from app.agents.planner import PlannerAgent
 from app.agents.content import ContentAgent
+from app.agents.content_llm import ContentAgentLLM
 from app.agents.validator import ValidatorAgent
 from app.services.markdown_renderer import render_blocks_to_markdown
 
 logger = logging.getLogger(__name__)
 
+USE_LLM_CONTENT = os.getenv("USE_LLM_CONTENT", "false").lower() == "true"
+
 # instantiate agents
 planner_agent = PlannerAgent()
-content_agent = ContentAgent()
+content_agent = ContentAgentLLM() if USE_LLM_CONTENT else ContentAgent()
 validator_agent = ValidatorAgent()
 
 
