@@ -1,6 +1,6 @@
 # uLearn Frontend
 
-React + TypeScript frontend for the uLearn micro-learning experience. The UI uses a mocked API client that matches the backend contract in `openapi.yaml`.
+React + TypeScript frontend for the uLearn micro-learning experience. The UI calls the backend API defined in `openapi.yaml`.
 
 ## Requirements
 
@@ -14,6 +14,12 @@ npm run dev
 ```
 
 The app runs at http://localhost:8080 by default.
+
+To point the frontend at a different backend, set `VITE_API_BASE` at build time via `frontend/.env`:
+
+```
+VITE_API_BASE=http://localhost:8000
+```
 
 ## Python execution (Pyodide)
 
@@ -33,6 +39,8 @@ npm test
 npm run build
 ```
 
-## Mocked API
+## API client
 
-The mock client lives in `src/api/lessonClient.ts`. Components must consume the client and should not call the backend directly.
+The client lives in `src/api/lessonClient.ts`. Components must consume the client and should not call the backend directly.
+
+Note: The Docker Compose setup serves a prebuilt static bundle; `VITE_API_BASE` must be set before building the frontend.

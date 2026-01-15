@@ -1,5 +1,4 @@
 from typing import List
-
 from pydantic_ai import Agent
 
 from app.core.config import MODEL
@@ -8,15 +7,9 @@ from app.agents.content_llm_models import LLMLessonModel
 
 
 class ContentAgentLLM:
-    """
-    LLM-backed content agent.
-    Generates structured lesson blocks using an LLM.
-    """
-
     def __init__(self) -> None:
         self.agent = Agent(
             model=MODEL,
-            result_type=LLMLessonModel,
             system_prompt=(
                 "You are an expert instructor. "
                 "Generate lesson content as structured blocks. "
@@ -30,14 +23,15 @@ class ContentAgentLLM:
         planned_sections: List[PlannedSection],
     ) -> List[GeneratedSection]:
         prompt = self._build_prompt(topic, planned_sections)
-        result = self.agent.run(prompt)
+
+        result = self.agent.run(
+            prompt,
+            result_type=LLMLessonModel,
+        )
+
         return self._parse_result(result.data)
 
-    def _build_prompt(
-        self,
-        topic: str,
-        planned_sections: List[PlannedSection],
-    ) -> str:
+    def _build_prompt(self, topic: str, planned_sections: List[PlannedSection]) -> str:
         sections_desc = "\n".join(
             f"- id: {s.id}, title: {s.title}, minutes: {s.minutes}"
             for s in planned_sections
@@ -55,13 +49,7 @@ class ContentAgentLLM:
             "Return JSON only."
         )
 
-    def _parse_result(
-        self,
-        lesson: LLMLessonModel,
-    ) -> List[GeneratedSection]:
-        """
-        Convert validated LLM output into domain dataclasses.
-        """
+    def _parse_result(self, lesson: LLMLessonModel) -> List[GeneratedSection]:
         return [
             GeneratedSection(
                 id=sec.id,

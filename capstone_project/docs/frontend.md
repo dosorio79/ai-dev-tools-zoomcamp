@@ -2,16 +2,20 @@
 
 ## Overview
 
-The frontend is a React + TypeScript application built with Vite and styled with Tailwind CSS. It renders lessons using a mocked API client that follows `openapi.yaml`.
+The frontend is a React + TypeScript application built with Vite and styled with Tailwind CSS. It renders lessons by calling the backend API that follows `openapi.yaml`.
 
 ## Architecture
 
-- `src/api/lessonClient.ts`: Mocked API client returning `LessonResponse`.
+- `src/api/lessonClient.ts`: API client returning `LessonResponse`.
 - `src/api/executeLocally.ts`: In-browser execution for Python snippets using Pyodide.
 - `src/types/lesson.ts`: Request/response types aligned with OpenAPI.
 - `src/types/execution.ts`: Execution types for local snippet runs.
 - `src/pages/Home.tsx`: Input flow, loading state, and lesson rendering.
 - `src/components/LessonRenderer.tsx`: Overall lesson layout.
+
+Environment configuration:
+
+- `VITE_API_BASE`: backend base URL (defaults to `http://localhost:8000`)
 - `src/components/LessonSection.tsx`: Per-section rendering.
 - `src/components/CodeBlock.tsx`: Markdown code blocks with syntax highlighting.
 - `src/components/ExerciseBlock.tsx`: Custom `:::exercise` block rendering.
@@ -38,7 +42,7 @@ The app runs at http://localhost:8080 by default.
 
 ## Deployment note
 
-The frontend is packaged as a static build and served from its own container in Docker Compose. It still uses the mocked API client until the backend integration is enabled.
+The frontend is packaged as a static build and served from its own container in Docker Compose.
 
 The container serves the static UI at http://localhost:8080.
 

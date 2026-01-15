@@ -15,7 +15,7 @@ npm test
 
 What is covered:
 
-- Lesson rendering from mocked API response.
+- Lesson rendering from API responses (the client is mocked in frontend tests).
 - Full user flow (input → generate → lesson appears).
 - Python code block Run button behavior.
 - Exercise block rendering.
@@ -62,5 +62,5 @@ python -m pytest
 
 ## Notes
 
-- The frontend uses a mocked API client and does not call the backend.
+- Frontend tests mock the API client; the running app calls the backend.
 - Integration tests that require MongoDB should run with `docker compose up`.

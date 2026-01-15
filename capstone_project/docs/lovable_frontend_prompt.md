@@ -3,6 +3,8 @@ Tagline: Micro-learning, generated on demand
 
 Build a modern, clean React frontend for uLearn, a micro-learning platform that generates focused 15-minute lessons on demand using AI.
 
+Note: This prompt reflects the original mocked-API build; the current frontend calls the backend directly.
+
 The frontend must be production-quality in structure and readability, but all backend interactions must be MOCKED. The mocked API must strictly follow the provided API contract so it can later be replaced by a real backend without refactoring.
 
 ====================

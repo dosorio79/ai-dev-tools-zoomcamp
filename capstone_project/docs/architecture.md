@@ -6,14 +6,14 @@ This document describes the system structure and data flow for the uLearn capsto
 
 ## High-level system
 
-- Frontend (React + Vite + Tailwind) renders the lesson UI using a mocked API client that follows `openapi.yaml`.
+- Frontend (React + Vite + Tailwind) renders the lesson UI by calling the backend API defined in `openapi.yaml`.
 - Backend (FastAPI) exposes `/lesson` and `/health` endpoints.
 - MongoDB stores append-only telemetry for lesson generations.
 
 ## Request flow
 
 1) User submits a topic and difficulty.
-2) Frontend calls the mocked client (or later the real backend).
+2) Frontend calls the backend API via the lesson client.
 3) Backend orchestrates lesson generation via agents.
 4) Backend validates, renders blocks to Markdown, and returns a `LessonResponse`.
 5) Backend writes telemetry to MongoDB.
@@ -34,7 +34,7 @@ This document describes the system structure and data flow for the uLearn capsto
 
 ## Frontend layout
 
-- `frontend/src/api/lessonClient.ts`: Mocked API client.
+- `frontend/src/api/lessonClient.ts`: API client for lesson calls.
 - `frontend/src/types/lesson.ts`: Shared request/response types.
 - `frontend/src/pages/Home.tsx`: Input flow and lesson rendering.
 - `frontend/src/components/*`: Lesson section rendering, code blocks, exercise blocks.

@@ -60,8 +60,7 @@ It serves:
 - No server-side logic
 
 Important notes:
-- The frontend currently uses a mocked API client
-- It does not call the backend yet
+- The frontend calls the backend API directly
 - The container exists for reproducibility and mirrors the production static build
 
 The frontend container serves the UI at:
@@ -77,3 +76,4 @@ The backend reads environment variables from `.env` or the container environment
 - `OPENAI_API_KEY`: required when `USE_LLM_CONTENT=true`
 - `MODEL`: LLM model name (defaults to `gpt-4.1-mini`)
 - `USE_LLM_CONTENT`: toggle LLM-backed content generation (`true`/`false`)
+- `CORS_ORIGINS`: comma-separated list of allowed origins (default: `http://localhost:8080`)

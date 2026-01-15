@@ -80,4 +80,4 @@ Expected response: `200 OK`
 
 ## Frontend note
 
-The current frontend uses a mocked API client in `frontend/src/api/lessonClient.ts`. It follows this contract so it can be replaced by real HTTP calls later without refactoring.
+The frontend calls the backend via `frontend/src/api/lessonClient.ts` and follows this contract.

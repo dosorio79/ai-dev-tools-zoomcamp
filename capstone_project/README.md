@@ -52,7 +52,7 @@ The backend exposes a single public endpoint:
 
 The API contract is defined using **OpenAPI** (`openapi.yaml`) and serves as the single source of truth for frontend and backend development.
 
-The frontend was developed contract-first using mocked responses derived from this specification.
+The frontend follows this contract for real HTTP calls to the backend.
 
 ## Frontend code execution
 
@@ -121,6 +121,8 @@ docker compose up --build
 
 This starts the backend, MongoDB, and the frontend container.
 
+Note: the frontend image expects a prebuilt `frontend/dist` (run `npm run build` in `frontend/` before building the containers).
+
 The API will be available at:
 
 - http://localhost:8000
@@ -137,10 +139,11 @@ Create your environment file from `.env-example` and update values as needed:
 - `OPENAI_API_KEY`: required when `USE_LLM_CONTENT=true`
 - `MODEL`: LLM model name (defaults to `gpt-4.1-mini`)
 - `USE_LLM_CONTENT`: toggle LLM-backed content generation (`true`/`false`)
+- `CORS_ORIGINS`: comma-separated list of allowed origins (default: `http://localhost:8080`)
 
-### Frontend (mocked API)
+### Frontend (real API)
 
-The frontend currently uses a mocked API client that follows `openapi.yaml` and does not call the backend.
+The frontend calls the backend directly via `frontend/src/api/lessonClient.ts`.
 
 ```bash
 cd frontend
@@ -151,6 +154,8 @@ npm run dev
 The UI will be available at:
 
 - http://localhost:8080
+
+Set `VITE_API_BASE` in `frontend/.env` to change the backend URL (defaults to `http://localhost:8000`).
 
 ---
 
