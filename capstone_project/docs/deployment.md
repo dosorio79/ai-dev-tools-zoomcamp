@@ -67,3 +67,13 @@ Important notes:
 The frontend container serves the UI at:
 
 - http://localhost:8080
+
+---
+
+## Environment configuration
+
+The backend reads environment variables from `.env` or the container environment:
+
+- `OPENAI_API_KEY`: required when `USE_LLM_CONTENT=true`
+- `MODEL`: LLM model name (defaults to `gpt-4.1-mini`)
+- `USE_LLM_CONTENT`: toggle LLM-backed content generation (`true`/`false`)

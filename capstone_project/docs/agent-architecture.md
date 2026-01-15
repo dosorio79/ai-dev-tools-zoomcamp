@@ -9,14 +9,15 @@ The system is stateless from a user perspective. Persistence is limited to appen
 ## Agents and responsibilities
 
 - PlannerAgent: Creates the lesson outline, section titles, and time budget per section.
-- ContentAgent: Generates structured content blocks for each planned section.
+- ContentAgent: Generates structured content blocks for each planned section (stub).
+- ContentAgentLLM: Optional LLM-backed content generator (toggle via `USE_LLM_CONTENT`).
 - ValidatorAgent: Enforces structural guardrails (unique section IDs, valid blocks, minimum minutes) and normalizes total time to 15 minutes.
 
 ## Orchestration flow
 
 1) Receive `POST /lesson` request.
 2) Planner produces a structured plan (sections with minute budgets).
-3) Content agent generates structured blocks per section.
+3) Content agent generates structured blocks per section (selected via `USE_LLM_CONTENT`, model via `MODEL`).
 4) Validator enforces structural rules and normalizes total time to 15 minutes.
 5) Renderer converts blocks to Markdown for the API response.
 6) Persist telemetry (request metadata + output summary) after validating the telemetry record.

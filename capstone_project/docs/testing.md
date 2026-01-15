@@ -41,6 +41,19 @@ What is covered:
 - API contract and integration workflow.
 - Telemetry model validation (happy path and invalid level).
 
+Markers are available to focus on subsets:
+
+- `unit`: unit tests
+- `llm`: LLM content agent parsing tests
+- `api`: API contract tests
+- `integration`: integration tests
+
+Example:
+
+```bash
+pytest -m unit
+```
+
 If you prefer using the system interpreter instead of `uv`, ensure `pytest` is installed in your environment, then run:
 
 ```bash

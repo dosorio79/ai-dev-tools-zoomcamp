@@ -67,7 +67,8 @@ You can override the Pyodide base URL with `VITE_PYODIDE_BASE` (defaults to the 
 Lesson generation is implemented using multiple cooperating agents:
 
 - **PlannerAgent** – defines lesson structure and time budget
-- **ContentAgent** – generates structured content blocks per section
+- **ContentAgent** – generates structured content blocks per section (stub)
+- **ContentAgentLLM** – optional LLM-backed content generator
 - **ValidatorAgent** – enforces structure and normalizes section minutes to 15 total
 
 A detailed description of agent responsibilities and orchestration can be found in `docs/agent-architecture.md`.
@@ -129,6 +130,14 @@ The frontend container will be available at:
 
 - http://localhost:8080
 
+### Configuration
+
+Create your environment file from `.env-example` and update values as needed:
+
+- `OPENAI_API_KEY`: required when `USE_LLM_CONTENT=true`
+- `MODEL`: LLM model name (defaults to `gpt-4.1-mini`)
+- `USE_LLM_CONTENT`: toggle LLM-backed content generation (`true`/`false`)
+
 ### Frontend (mocked API)
 
 The frontend currently uses a mocked API client that follows `openapi.yaml` and does not call the backend.
@@ -157,6 +166,15 @@ Run tests with:
 
 ```bash
 uv run pytest
+```
+
+Run specific categories with markers:
+
+```bash
+pytest -m unit
+pytest -m llm
+pytest -m api
+pytest -m integration
 ```
 
 Frontend tests:
