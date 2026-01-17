@@ -349,6 +349,27 @@ def test_validator_json_only_response_rejects_extra_keys():
         validator.validate_json_only_response(payload)
 
 
+@pytest.mark.unit
+def test_validator_json_only_response_requires_sections():
+    validator = ValidatorAgent()
+    payload = {
+        "objective": "Learn pandas groupby performance.",
+        "sections": [
+            {
+                "id": "concept",
+                "title": "Core concept",
+                "minutes": 5,
+                "blocks": [
+                    {"type": "text", "content": "Explain concept."}
+                ],
+            }
+        ],
+    }
+
+    with pytest.raises(ValueError, match="concept, example, and exercise"):
+        validator.validate_json_only_response(payload)
+
+
 # ContentAgentLLM parsing tests
 @pytest.mark.llm
 def test_content_llm_parse_result_accepts_dict():
@@ -368,8 +389,8 @@ def test_content_llm_parse_result_accepts_dict():
         ]
     }
 
-    lesson = agent._coerce_result(payload)
-    sections = agent._parse_result(lesson)
+    lesson = agent._parse_llm_result(payload)
+    sections = agent._to_generated_sections(lesson)
 
     assert len(sections) == 1
     assert sections[0].id == "concept"
@@ -395,7 +416,7 @@ def test_content_llm_parse_result_accepts_model():
     }
     model = LLMLessonModel.model_validate(payload)
 
-    sections = agent._parse_result(model)
+    sections = agent._to_generated_sections(model)
 
     assert len(sections) == 1
     assert sections[0].id == "example"
@@ -424,6 +445,6 @@ def test_content_llm_coerce_result_strips_code_fences_from_output():
     class DummyResult:
         output = f"```json\n{json.dumps(payload)}\n```"
 
-    lesson = agent._coerce_result(DummyResult())
+    lesson = agent._parse_llm_result(DummyResult())
 
     assert lesson.sections[0].id == "concept"

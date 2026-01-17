@@ -119,6 +119,9 @@ class ValidatorAgent:
         sections = payload.get("sections")
         if not isinstance(sections, list):
             raise ValueError("Lesson sections must be a list.")
+        section_ids = [section.get("id") for section in sections if isinstance(section, dict)]
+        if set(section_ids) != self.REQUIRED_SECTION_IDS:
+            raise ValueError("Lesson must include concept, example, and exercise sections.")
 
         for section in sections:
             if not isinstance(section, dict):

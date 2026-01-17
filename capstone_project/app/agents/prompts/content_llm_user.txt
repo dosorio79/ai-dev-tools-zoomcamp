@@ -11,10 +11,26 @@ Rules:
 - At least one python block is required.
 - Python blocks must be runnable and include print output.
 - Total minutes must remain unchanged.
+- Return a JSON object with a "sections" array only.
 
 Required sections (reference):
 - id: concept, minutes: 5
 - id: example, minutes: 6
 - id: exercise, minutes: 4
+
+Output schema:
+{
+  "sections": [
+    {
+      "id": "concept",
+      "title": "Core concept",
+      "minutes": 5,
+      "blocks": [
+        {"type": "text", "content": "..."},
+        {"type": "python", "content": "..."}
+      ]
+    }
+  ]
+}
 
 Return JSON only.
