@@ -42,6 +42,9 @@ npm run dev
 The app runs at http://localhost:8080 by default.
 
 Set `VITE_API_BASE` in `frontend/.env` to change the backend URL (defaults to `http://localhost:8000`).
+The runtime config (`frontend/public/runtime-config.js`) can override this without a rebuild:
+- `API_BASE: ""` uses same-origin (recommended for Docker with nginx proxy).
+- `API_BASE: "http://localhost:8000"` calls the backend directly.
 
 ## Deployment note
 

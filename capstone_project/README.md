@@ -123,6 +123,10 @@ This starts the backend, MongoDB, and the frontend container.
 
 Note: the frontend image expects a prebuilt `frontend/dist` (run `npm run build` in `frontend/` before building the containers).
 
+For Docker, the frontend container proxies `/lesson` and `/health` to the backend, so you can
+leave `API_BASE` empty in `frontend/public/runtime-config.js` to use same-origin requests.
+To call the backend directly, set `API_BASE` to `http://localhost:8000`.
+
 The API will be available at:
 
 - http://localhost:8000
@@ -156,6 +160,7 @@ The UI will be available at:
 - http://localhost:8080
 
 Set `VITE_API_BASE` in `frontend/.env` to change the backend URL (defaults to `http://localhost:8000`).
+The runtime config (`frontend/public/runtime-config.js`) can override this at runtime without a rebuild.
 
 ---
 
