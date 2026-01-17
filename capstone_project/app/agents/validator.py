@@ -17,6 +17,7 @@ class ValidatorAgent:
     MAX_SECTION_COUNT = 3
 
     ALLOWED_SECTION_IDS = {"concept", "example", "exercise"}
+    REQUIRED_SECTION_IDS = {"concept", "example", "exercise"}
     ALLOWED_BLOCK_TYPES = {"text", "python", "exercise"}
     MAX_PYTHON_LINES = 30
     JSON_LESSON_KEYS = {"objective", "sections"}
@@ -46,6 +47,8 @@ class ValidatorAgent:
             raise ValueError(
                 f"Section IDs must be one of {sorted(self.ALLOWED_SECTION_IDS)}."
             )
+        if set(section_ids) != self.REQUIRED_SECTION_IDS:
+            raise ValueError("Lesson must include concept, example, and exercise sections.")
 
         python_block_found = False
 
@@ -146,6 +149,8 @@ class ValidatorAgent:
 
         if block.type == "python":
             self._validate_python_block(block.content)
+        if block.type == "exercise":
+            self._validate_exercise_block(block.content)
 
     def _validate_python_block(self, code: str) -> None:
         # 1. Syntax validation (non-negotiable).
@@ -194,3 +199,7 @@ class ValidatorAgent:
                     f"Missing import for symbol '{symbol}'. "
                     "Each python block must be self-contained."
                 )
+
+    def _validate_exercise_block(self, content: str) -> None:
+        if "```" in content or ":::exercise" in content:
+            raise ValueError("Exercise blocks must be plain text only.")

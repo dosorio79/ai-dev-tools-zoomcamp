@@ -1,0 +1,20 @@
+Create a 15-minute lesson on "{topic}".
+
+Sections:
+{sections_desc}
+
+Rules:
+- You MUST generate content for ALL sections listed above.
+- You MUST NOT add, remove, rename, or reorder sections.
+- Use section ids exactly as provided.
+- Return blocks with type: text | python | exercise.
+- At least one python block is required.
+- Python blocks must be runnable and include print output.
+- Total minutes must remain unchanged.
+
+Required sections (reference):
+- id: concept, minutes: 5
+- id: example, minutes: 6
+- id: exercise, minutes: 4
+
+Return JSON only.

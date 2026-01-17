@@ -9,6 +9,7 @@ from app.models.agents import PlannedSection, GeneratedSection, ContentBlock
 from app.agents.content_llm_models import LLMLessonModel
 
 PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "content_llm_system.txt"
+USER_PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "content_llm_user.txt"
 
 
 class ContentAgentLLM:
@@ -38,17 +39,8 @@ class ContentAgentLLM:
             for s in planned_sections
         )
 
-        return (
-            f'Create a 15-minute lesson on "{topic}".\n\n'
-            f"Sections:\n{sections_desc}\n\n"
-            "Rules:\n"
-            "- Use section ids exactly as provided\n"
-            "- Return blocks with type: text | python | exercise\n"
-            "- At least one python block\n"
-            "- Python blocks must be runnable\n"
-            "- Total minutes must remain unchanged\n\n"
-            "Return JSON only."
-        )
+        template = USER_PROMPT_PATH.read_text(encoding="utf-8")
+        return template.format(topic=topic, sections_desc=sections_desc).strip()
 
     def _parse_result(self, lesson: LLMLessonModel) -> List[GeneratedSection]:
         return [
