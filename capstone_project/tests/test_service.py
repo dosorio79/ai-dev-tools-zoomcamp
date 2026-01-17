@@ -30,7 +30,11 @@ def test_generate_lesson_returns_expected_structure():
     assert response.sections[0].id == "concept"
     assert response.sections[0].title == "Core concept"
     assert response.sections[0].content_markdown == (
-        "This section introduces the key ideas behind vector databases."
+        "This section introduces the key ideas behind vector databases.\n\n"
+        "- Define the core concept in one sentence.\n"
+        "- Highlight a common use case.\n\n"
+        "1. Identify the goal.\n"
+        "2. Apply the technique with a small example."
     )
 
     exercise_sections = [section for section in response.sections if section.id == "exercise"]

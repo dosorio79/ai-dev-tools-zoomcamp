@@ -157,6 +157,8 @@ class ValidatorAgent:
             self._validate_python_block(block.content)
         if block.type == "exercise":
             self._validate_exercise_block(block.content)
+        if block.type == "text":
+            self._validate_text_formatting(block.content)
 
     def _validate_python_block(self, code: str) -> None:
         # 1. Syntax validation (non-negotiable).
@@ -209,3 +211,12 @@ class ValidatorAgent:
     def _validate_exercise_block(self, content: str) -> None:
         if "```" in content or ":::exercise" in content:
             raise ValueError("Exercise blocks must be plain text only.")
+
+    def _validate_text_formatting(self, content: str) -> None:
+        has_paragraph = "\n\n" in content
+        has_bullet = "\n- " in content or "\n* " in content
+        has_numbered = "\n1. " in content
+        if not has_paragraph or not (has_bullet or has_numbered):
+            raise ValueError(
+                "Text blocks must include a paragraph and a bullet or numbered list."
+            )

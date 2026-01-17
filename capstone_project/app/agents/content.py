@@ -8,6 +8,15 @@ from app.models.agents import PlannedSection, GeneratedSection, ContentBlock
 class ContentAgent:
     """Generates structured lesson content blocks."""
 
+    def _format_text_block(self, topic: str) -> str:
+        return (
+            f"This section introduces the key ideas behind {topic}.\n\n"
+            "- Define the core concept in one sentence.\n"
+            "- Highlight a common use case.\n\n"
+            "1. Identify the goal.\n"
+            "2. Apply the technique with a small example."
+        )
+
     async def generate(
         self,
         topic: str,
@@ -22,7 +31,7 @@ class ContentAgent:
             blocks.append(
                 ContentBlock(
                     type="text",
-                    content=f"This section introduces the key ideas behind {topic}.",
+                    content=self._format_text_block(topic),
                 )
             )
 

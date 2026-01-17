@@ -12,6 +12,7 @@ Rules:
 - Python blocks must be independently runnable.
 - Python blocks must include all required imports.
 - Python blocks must produce visible output using print(...).
+- Each section must include at least one paragraph and either a bullet list or numbered list.
 - Total minutes must remain unchanged.
 - Return a JSON object with a top-level "sections" array only.
 
@@ -53,3 +54,6 @@ Output schema:
 }}
 
 Return JSON only.
+
+Formatting example (text block):
+"content": "Paragraph explaining the idea.\n\n- Bullet point one\n- Bullet point two\n\n1. Step one\n2. Step two"

@@ -44,6 +44,17 @@ def test_content_llm_prompt_template_formats():
     assert "{sections_desc}" not in prompt
     assert '"sections"' in prompt
 
+
+def _formatted_text(prefix: str) -> str:
+    return (
+        f"{prefix}\n\n"
+        "- First key point.\n"
+        "- Second key point.\n\n"
+        "1. Step one.\n"
+        "2. Step two."
+    )
+
+
 def _base_sections(
     *,
     concept_blocks: list[ContentBlock] | None = None,
@@ -60,7 +71,7 @@ def _base_sections(
             minutes=minutes["concept"],
             blocks=concept_blocks
             or [
-                ContentBlock(type="text", content="Intro content."),
+                ContentBlock(type="text", content=_formatted_text("Intro content.")),
                 ContentBlock(type="python", content="print('hello')"),
             ],
         ),
@@ -68,7 +79,8 @@ def _base_sections(
             id="example",
             title="Worked example",
             minutes=minutes["example"],
-            blocks=example_blocks or [ContentBlock(type="text", content="Example content")],
+            blocks=example_blocks
+            or [ContentBlock(type="text", content=_formatted_text("Example content"))],
         ),
         GeneratedSection(
             id="exercise",
@@ -86,7 +98,7 @@ def test_validator_adjusts_minutes_to_target_total():
     validator = ValidatorAgent()
     sections = _base_sections(
         minutes={"concept": 4, "example": 4, "exercise": 4},
-        example_blocks=[ContentBlock(type="text", content="Deep dive content")],
+        example_blocks=[ContentBlock(type="text", content=_formatted_text("Deep dive content"))],
     )
 
     adjusted = validator.validate(sections)
@@ -100,7 +112,7 @@ def test_validator_rounds_minutes_with_multiple_sections():
     validator = ValidatorAgent()
     sections = _base_sections(
         minutes={"concept": 3, "example": 7, "exercise": 10},
-        example_blocks=[ContentBlock(type="text", content="Core content")],
+        example_blocks=[ContentBlock(type="text", content=_formatted_text("Core content"))],
         exercise_blocks=[ContentBlock(type="exercise", content="Wrap content")],
     )
 
@@ -149,7 +161,7 @@ def test_validator_requires_unique_section_ids():
             title="Intro",
             minutes=5,
             blocks=[
-                ContentBlock(type="text", content="Intro content."),
+                ContentBlock(type="text", content=_formatted_text("Intro content.")),
                 ContentBlock(type="python", content="print('hello')"),
             ],
         ),
@@ -157,7 +169,7 @@ def test_validator_requires_unique_section_ids():
             id="concept",
             title="Concept duplicate",
             minutes=6,
-            blocks=[ContentBlock(type="text", content="More content")],
+            blocks=[ContentBlock(type="text", content=_formatted_text("More content"))],
         ),
         GeneratedSection(
             id="exercise",
@@ -180,7 +192,7 @@ def test_validator_rejects_invalid_section_ids():
             title="Overview",
             minutes=15,
             blocks=[
-                ContentBlock(type="text", content="Intro content."),
+                ContentBlock(type="text", content=_formatted_text("Intro content.")),
                 ContentBlock(type="python", content="print('hello')"),
             ],
         ),
@@ -188,7 +200,7 @@ def test_validator_rejects_invalid_section_ids():
             id="example",
             title="Example",
             minutes=6,
-            blocks=[ContentBlock(type="text", content="Example content")],
+            blocks=[ContentBlock(type="text", content=_formatted_text("Example content"))],
         ),
         GeneratedSection(
             id="exercise",
@@ -211,7 +223,7 @@ def test_validator_rejects_too_many_sections():
             title="Concept",
             minutes=4,
             blocks=[
-                ContentBlock(type="text", content="Concept content."),
+                ContentBlock(type="text", content=_formatted_text("Concept content.")),
                 ContentBlock(type="python", content="print('hello')"),
             ],
         ),
@@ -219,19 +231,19 @@ def test_validator_rejects_too_many_sections():
             id="example",
             title="Example",
             minutes=4,
-            blocks=[ContentBlock(type="text", content="Example content")],
+            blocks=[ContentBlock(type="text", content=_formatted_text("Example content"))],
         ),
         GeneratedSection(
             id="exercise",
             title="Exercise",
             minutes=4,
-            blocks=[ContentBlock(type="text", content="Exercise content")],
+            blocks=[ContentBlock(type="text", content=_formatted_text("Exercise content"))],
         ),
         GeneratedSection(
             id="concept",
             title="Extra concept",
             minutes=4,
-            blocks=[ContentBlock(type="text", content="Extra content")],
+            blocks=[ContentBlock(type="text", content=_formatted_text("Extra content"))],
         ),
     ]
 
@@ -243,8 +255,8 @@ def test_validator_rejects_too_many_sections():
 def test_validator_requires_python_block_across_lesson():
     validator = ValidatorAgent()
     sections = _base_sections(
-        concept_blocks=[ContentBlock(type="text", content="Concept content only.")],
-        example_blocks=[ContentBlock(type="text", content="Example content only.")],
+        concept_blocks=[ContentBlock(type="text", content=_formatted_text("Concept content only."))],
+        example_blocks=[ContentBlock(type="text", content=_formatted_text("Example content only."))],
         exercise_blocks=[ContentBlock(type="exercise", content="Exercise content")],
     )
 
@@ -273,6 +285,16 @@ def test_validator_rejects_invalid_python_syntax():
     with pytest.raises(ValueError, match="valid syntax"):
         validator.validate(sections)
 
+
+@pytest.mark.unit
+def test_validator_requires_text_formatting():
+    validator = ValidatorAgent()
+    sections = _base_sections(
+        concept_blocks=[ContentBlock(type="text", content="Single sentence only.")],
+    )
+
+    with pytest.raises(ValueError, match="Text blocks must include a paragraph"):
+        validator.validate(sections)
 
 @pytest.mark.unit
 def test_validator_rejects_exercise_markdown_fences():
@@ -334,7 +356,7 @@ def test_validator_strict_minutes_requires_exact_total():
     sections = _base_sections(
         minutes={"concept": 10, "example": 4, "exercise": 4},
         concept_blocks=[
-            ContentBlock(type="text", content="Concept content."),
+            ContentBlock(type="text", content=_formatted_text("Concept content.")),
             ContentBlock(type="python", content="print('hello')"),
         ],
     )
