@@ -12,15 +12,16 @@ from app.services.lesson_service import generate_lesson
 pytestmark = pytest.mark.unit
 
 
-@pytest.mark.asyncio
-async def test_generate_lesson_returns_expected_structure():
+def test_generate_lesson_returns_expected_structure():
     request = LessonRequest(
         session_id="5c05c610-1d1a-4b3d-8b66-9c7b8c4d6c2f",
         topic="vector databases",
         level="beginner",
     )
 
-    response = await generate_lesson(request)
+    import asyncio
+
+    response = asyncio.run(generate_lesson(request))
 
     assert response.total_minutes == 15
     assert response.objective == "Learn vector databases at a beginner level in 15 minutes."

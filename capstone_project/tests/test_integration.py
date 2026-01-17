@@ -4,15 +4,14 @@ from uuid import uuid4
 
 from app.models.api import LessonRequest
 from app.services.lesson_service import generate_lesson
-from app.services.mongo import get_collection
+from app.services import mongo
+from app.core import config
 
 import pytest
 
-pytest.skip("Integration test: requires MongoDB running in Docker", allow_module_level=True)
 pytestmark = pytest.mark.integration
 
-@pytest.mark.asyncio
-async def test_generate_lesson_inserts_telemetry_document():
+def test_generate_lesson_inserts_telemetry_document():
     session_id = str(uuid4())
     request = LessonRequest(
         session_id=session_id,
@@ -20,13 +19,17 @@ async def test_generate_lesson_inserts_telemetry_document():
         level="beginner",
     )
 
-    collection = get_collection()
+    config.MONGO_URI = "mongodb://localhost:27017"
+    mongo._client = None
+    collection = mongo.get_collection()
     start_time = datetime.now(timezone.utc)
     before_count = collection.count_documents(
         {"session_id": session_id, "topic": "telemetry testing"}
     )
 
-    await generate_lesson(request)
+    import asyncio
+
+    asyncio.run(generate_lesson(request))
 
     after_count = collection.count_documents(
         {

@@ -1,5 +1,6 @@
 # Unit tests for validator and LLM content parsing
 import importlib
+import json
 import sys
 import types
 
@@ -326,7 +327,8 @@ def test_content_llm_parse_result_accepts_dict():
         ]
     }
 
-    sections = agent._parse_result(payload)
+    lesson = agent._coerce_result(payload)
+    sections = agent._parse_result(lesson)
 
     assert len(sections) == 1
     assert sections[0].id == "concept"
@@ -357,3 +359,30 @@ def test_content_llm_parse_result_accepts_model():
     assert len(sections) == 1
     assert sections[0].id == "example"
     assert sections[0].blocks[0].content == "Example content."
+
+
+@pytest.mark.llm
+def test_content_llm_coerce_result_strips_code_fences_from_output():
+    content_llm = _load_content_llm()
+    agent = content_llm.ContentAgentLLM.__new__(content_llm.ContentAgentLLM)
+
+    payload = {
+        "sections": [
+            {
+                "id": "concept",
+                "title": "Core concept",
+                "minutes": 7,
+                "blocks": [
+                    {"type": "text", "content": "Intro content."},
+                    {"type": "python", "content": "print('hello')"},
+                ],
+            }
+        ]
+    }
+
+    class DummyResult:
+        output = f"```json\n{json.dumps(payload)}\n```"
+
+    lesson = agent._coerce_result(DummyResult())
+
+    assert lesson.sections[0].id == "concept"
