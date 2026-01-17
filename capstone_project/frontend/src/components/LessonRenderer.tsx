@@ -39,6 +39,18 @@ export function LessonRenderer({ lesson, onReset }: LessonRendererProps) {
         {lesson.sections.map((section) => (
           <LessonSection key={section.id} section={section} />
         ))}
+
+        <div className="mt-8 border-t border-border pt-6 flex flex-col gap-3 text-sm text-muted-foreground">
+          <p className="text-foreground font-medium">Was this lesson useful?</p>
+          <div className="flex gap-3">
+            <Button variant="outline" size="sm" className="gap-2">
+              👍 Yes
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2">
+              👎 Not really
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

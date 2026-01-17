@@ -27,6 +27,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
     ? 'bg-neutral-950 text-neutral-200 border-neutral-800'
     : 'bg-secondary/30 border-border';
   const languageClass = isPython ? 'text-neutral-300' : 'text-muted-foreground';
+  const labelClass = isPython ? 'text-[0.65rem] uppercase tracking-wide text-neutral-400' : '';
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
@@ -104,23 +105,52 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   };
 
   const runLabel = runPhase === 'loading' ? 'Loading...' : 'Running';
+  const errorHint = result?.error
+    ? (() => {
+        const message = result.error;
+        if (message.includes('Execution timed out')) {
+          return 'This run took too long. The lesson is designed to be quick—try a smaller sample next time.';
+        }
+        if (message.includes('Execution stopped')) {
+          return 'Run stopped. You can run it again when you are ready.';
+        }
+        if (message.includes('SyntaxError')) {
+          return 'Looks like a syntax issue in this example. Generate a new lesson to get a clean run.';
+        }
+        if (message.includes('ModuleNotFoundError') || message.includes('No module named')) {
+          return 'This environment is self-contained and uses standard libraries. Generate a new lesson for a built-in example.';
+        }
+        if (message.includes('NameError')) {
+          return 'This example is missing a definition. Generate a new lesson to get a complete version.';
+        }
+        return 'This example is self-contained — no setup required.';
+      })()
+    : null;
 
   return (
     <div className={`relative my-4 rounded-lg overflow-hidden border ${panelBorderClass}`}>
       <div className={`flex items-center justify-between px-4 py-2 border-b ${headerClass}`}>
-        <span className={`text-sm font-mono ${languageClass}`}>{language}</span>
+        {isPython ? (
+          <div className="flex flex-col leading-tight">
+            <span className={labelClass}>Runnable example</span>
+            <span className={`text-sm font-mono ${languageClass}`}>{language}</span>
+          </div>
+        ) : (
+          <span className={`text-sm font-mono ${languageClass}`}>{language}</span>
+        )}
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleCopy}
-            className="h-7 px-2"
+            className="h-7 px-2 gap-1.5 text-xs"
           >
             {copied ? (
               <Check className="h-4 w-4 text-primary" />
             ) : (
               <Copy className="h-4 w-4" />
             )}
+            <span>Copy</span>
           </Button>
           {isPython && (
             <>
@@ -215,9 +245,9 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
               >
                 {result.error}
               </pre>
-              {result.error.includes('Execution timed out') && (
-                <div className="mt-2 text-xs text-muted-foreground" data-testid="execution-timeout-hint">
-                  Tip: Try running with a smaller sample to keep execution fast.
+              {errorHint && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {errorHint}
                 </div>
               )}
             </div>

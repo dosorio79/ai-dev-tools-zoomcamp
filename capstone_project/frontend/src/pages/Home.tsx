@@ -136,7 +136,7 @@ export default function Home() {
                   Short lessons, clear takeaways, zero doomscrolling.
                 </p>
                 <p className="text-muted-foreground">
-                  Enter any data or Python topic and get a focused lesson instantly
+                  Enter a data or Python topic. We’ll do the thinking.
                 </p>
               </div>
 
@@ -262,12 +262,12 @@ export default function Home() {
                 <div className="text-sm text-muted-foreground">minutes</div>
               </div>
               <div className="p-4">
-                <div className="text-2xl font-bold text-primary">5</div>
+                <div className="text-2xl font-bold text-primary">3</div>
                 <div className="text-sm text-muted-foreground">sections</div>
               </div>
               <div className="p-4">
                 <div className="text-2xl font-bold text-primary">∞</div>
-                <div className="text-sm text-muted-foreground">topics</div>
+                <div className="text-sm text-muted-foreground">Generated just for you</div>
               </div>
             </div>
 

@@ -48,11 +48,21 @@ function parseExerciseBlocks(markdown: string): Array<{ type: 'markdown' | 'exer
 
 export function LessonSection({ section }: LessonSectionProps) {
   const contentParts = parseExerciseBlocks(section.content_markdown);
+  const chipLabel =
+    section.id === 'concept'
+      ? '🧠 Core concept'
+      : section.id === 'example'
+      ? '🧪 Example'
+      : section.id === 'exercise'
+      ? '✍️ Exercise'
+      : section.title;
 
   return (
     <section className="mb-8 last:mb-0" data-testid={`section-${section.id}`}>
       <div className="flex items-center justify-between mb-4 pb-2 border-b border-border">
-        <h2 className="text-xl font-serif font-bold text-foreground">{section.title}</h2>
+        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm font-semibold text-foreground">
+          {chipLabel}
+        </span>
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
           <span>{section.minutes} min</span>
