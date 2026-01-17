@@ -11,7 +11,8 @@ import pytest
 pytest.skip("Integration test: requires MongoDB running in Docker", allow_module_level=True)
 pytestmark = pytest.mark.integration
 
-def test_generate_lesson_inserts_telemetry_document():
+@pytest.mark.asyncio
+async def test_generate_lesson_inserts_telemetry_document():
     session_id = str(uuid4())
     request = LessonRequest(
         session_id=session_id,
@@ -25,7 +26,7 @@ def test_generate_lesson_inserts_telemetry_document():
         {"session_id": session_id, "topic": "telemetry testing"}
     )
 
-    generate_lesson(request)
+    await generate_lesson(request)
 
     after_count = collection.count_documents(
         {

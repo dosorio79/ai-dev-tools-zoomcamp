@@ -1,4 +1,6 @@
-from typing import List
+import json
+import inspect
+from typing import Any, List
 from pydantic_ai import Agent
 
 from app.core.config import MODEL
@@ -17,19 +19,18 @@ class ContentAgentLLM:
             ),
         )
 
-    def generate(
+    async def generate(
         self,
         topic: str,
         planned_sections: List[PlannedSection],
     ) -> List[GeneratedSection]:
         prompt = self._build_prompt(topic, planned_sections)
 
-        result = self.agent.run(
-            prompt,
-            result_type=LLMLessonModel,
-        )
-
-        return self._parse_result(result.data)
+        result = self.agent.run(prompt)
+        if inspect.isawaitable(result):
+            result = await result
+        lesson = self._coerce_result(result)
+        return self._parse_result(lesson)
 
     def _build_prompt(self, topic: str, planned_sections: List[PlannedSection]) -> str:
         sections_desc = "\n".join(
@@ -62,3 +63,25 @@ class ContentAgentLLM:
             )
             for sec in lesson.sections
         ]
+
+    def _coerce_result(self, result: Any) -> LLMLessonModel:
+        data = getattr(result, "data", None)
+        if data is None:
+            data = getattr(result, "output", result)
+        if isinstance(data, LLMLessonModel):
+            return data
+        if isinstance(data, str):
+            payload = json.loads(self._strip_code_fences(data))
+            return LLMLessonModel.model_validate(payload)
+        return LLMLessonModel.model_validate(data)
+
+    def _strip_code_fences(self, text: str) -> str:
+        stripped = text.strip()
+        if stripped.startswith("```"):
+            lines = stripped.splitlines()
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].startswith("```"):
+                lines = lines[:-1]
+            stripped = "\n".join(lines).strip()
+        return stripped

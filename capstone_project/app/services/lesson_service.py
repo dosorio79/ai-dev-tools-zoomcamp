@@ -25,7 +25,7 @@ content_agent = ContentAgentLLM() if USE_LLM_CONTENT else ContentAgent()
 validator_agent = ValidatorAgent()
 
 
-def generate_lesson(request: LessonRequest) -> LessonResponse:
+async def generate_lesson(request: LessonRequest) -> LessonResponse:
     """Generate a lesson using the agent pipeline and record telemetry."""
     session_id = str(request.session_id) if request.session_id else str(uuid4())
     
@@ -35,8 +35,10 @@ def generate_lesson(request: LessonRequest) -> LessonResponse:
                                           request.level, 
                                           )
     # 2. content generation
-    generated_sections = content_agent.generate(topic=request.topic,
-                                                planned_sections=planned_sections)
+    generated_sections = await content_agent.generate(
+        topic=request.topic,
+        planned_sections=planned_sections,
+    )
     # 3. validation
     validated_sections = validator_agent.validate(generated_sections)
                                                 

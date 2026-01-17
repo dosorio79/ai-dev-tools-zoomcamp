@@ -8,7 +8,7 @@ from app.models.agents import PlannedSection, GeneratedSection, ContentBlock
 class ContentAgent:
     """Generates structured lesson content blocks."""
 
-    def generate(
+    async def generate(
         self,
         topic: str,
         planned_sections: List[PlannedSection],

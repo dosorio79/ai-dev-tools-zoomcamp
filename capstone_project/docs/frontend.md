@@ -16,6 +16,7 @@ The frontend is a React + TypeScript application built with Vite and styled with
 Environment configuration:
 
 - `VITE_API_BASE`: backend base URL (defaults to `http://localhost:8000`)
+- `frontend/public/runtime-config.js`: optional runtime override for `API_BASE`
 - `src/components/LessonSection.tsx`: Per-section rendering.
 - `src/components/CodeBlock.tsx`: Markdown code blocks with syntax highlighting.
 - `src/components/ExerciseBlock.tsx`: Custom `:::exercise` block rendering.
@@ -40,11 +41,20 @@ npm run dev
 
 The app runs at http://localhost:8080 by default.
 
+Set `VITE_API_BASE` in `frontend/.env` to change the backend URL (defaults to `http://localhost:8000`).
+
 ## Deployment note
 
 The frontend is packaged as a static build and served from its own container in Docker Compose.
 
 The container serves the static UI at http://localhost:8080.
+
+The nginx container also proxies `/lesson` and `/health` to the backend service, so
+you can set `API_BASE` to an empty string in `frontend/public/runtime-config.js` to use
+same-origin requests in Docker.
+
+For Docker deployments, you can also edit `frontend/public/runtime-config.js` (or mount
+it as a volume) to set `API_BASE` at runtime without rebuilding.
 
 ## Tests
 
