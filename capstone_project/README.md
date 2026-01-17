@@ -202,3 +202,7 @@ npm test
 - Lesson personalization
 - Automated exercise evaluation
 - Learning analytics and feedback loops
+
+## Changelog
+
+See `CHANGELOG.md` for release notes.
