@@ -33,6 +33,11 @@ def test_generate_lesson_returns_expected_structure():
         "This section introduces the key ideas behind vector databases."
     )
 
+    exercise_sections = [section for section in response.sections if section.id == "exercise"]
+    assert exercise_sections, "Expected an exercise section."
+    assert ":::exercise\n" in exercise_sections[0].content_markdown
+    assert "\n:::" in exercise_sections[0].content_markdown
+
 
 def test_lesson_run_validation_rejects_invalid_level():
     with pytest.raises(ValidationError):

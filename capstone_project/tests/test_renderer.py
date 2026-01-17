@@ -18,4 +18,5 @@ def test_render_blocks_to_markdown():
     assert "Intro text" in md
     assert "```python" in md
     assert "print('hi')" in md
-    assert ":::exercise:::" in md
+    assert ":::exercise\n" in md
+    assert "\n:::" in md

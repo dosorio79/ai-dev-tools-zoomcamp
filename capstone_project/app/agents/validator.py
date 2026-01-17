@@ -150,6 +150,9 @@ class ValidatorAgent:
         if not block.content or not block.content.strip():
             raise ValueError("Block content must be non-empty.")
 
+        if ":::exercise" in block.content or "::: " in block.content:
+            raise ValueError("Block content must not include :::exercise markers.")
+
         if block.type == "python":
             self._validate_python_block(block.content)
         if block.type == "exercise":

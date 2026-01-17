@@ -28,6 +28,22 @@ def _load_content_llm():
         return importlib.import_module("app.agents.content_llm")
 
 
+@pytest.mark.unit
+def test_content_llm_prompt_template_formats():
+    content_llm = _load_content_llm()
+    agent = content_llm.ContentAgentLLM.__new__(content_llm.ContentAgentLLM)
+    planned_sections = [
+        types.SimpleNamespace(id="concept", title="Core concept", minutes=5),
+        types.SimpleNamespace(id="example", title="Worked example", minutes=6),
+        types.SimpleNamespace(id="exercise", title="Exercise", minutes=4),
+    ]
+
+    prompt = agent._build_prompt("pandas groupby performance", planned_sections)
+
+    assert "{topic}" not in prompt
+    assert "{sections_desc}" not in prompt
+    assert '"sections"' in prompt
+
 def _base_sections(
     *,
     concept_blocks: list[ContentBlock] | None = None,

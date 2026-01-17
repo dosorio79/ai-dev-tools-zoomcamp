@@ -9,9 +9,28 @@ Rules:
 - Use section ids exactly as provided.
 - Return blocks with type: text | python | exercise.
 - At least one python block is required.
-- Python blocks must be runnable and include print output.
+- Python blocks must be independently runnable.
+- Python blocks must include all required imports.
+- Python blocks must produce visible output using print(...).
 - Total minutes must remain unchanged.
-- Return a JSON object with a "sections" array only.
+- Return a JSON object with a top-level "sections" array only.
+
+Performance guidance:
+- Prefer deterministic, reproducible examples.
+- Do NOT use random, time, timeit, or wall-clock timing.
+- Explain performance using structural reasoning, vectorization,
+  memory usage, data types (e.g., categoricals), or algorithmic differences.
+- If an example would normally rely on timing or randomness,
+  replace it with a fixed, hard-coded example and explain
+  why it scales better conceptually.
+
+Exercise block rules:
+- Exercise content must be returned as a block with type "exercise".
+- Exercise blocks must contain plain text only.
+- Do not use markdown fences or inline markers for exercises.
+- Do NOT include :::exercise or ::: markers in exercise content.
+- Example (correct):
+  "blocks": [{{"type": "exercise", "content": "Convert the column to categorical and explain the speedup."}}]
 
 Required sections (reference):
 - id: concept, minutes: 5
@@ -19,18 +38,18 @@ Required sections (reference):
 - id: exercise, minutes: 4
 
 Output schema:
-{
+{{
   "sections": [
-    {
+    {{
       "id": "concept",
       "title": "Core concept",
       "minutes": 5,
       "blocks": [
-        {"type": "text", "content": "..."},
-        {"type": "python", "content": "..."}
+        {{"type": "text", "content": "..."}},
+        {{"type": "python", "content": "..."}}
       ]
-    }
+    }}
   ]
-}
+}}
 
 Return JSON only.

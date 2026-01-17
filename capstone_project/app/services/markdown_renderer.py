@@ -10,7 +10,7 @@ def render_blocks_to_markdown(blocks: list[ContentBlock]) -> str:
     Rules:
     - text      -> plain markdown
     - python    -> fenced python block
-    - exercise  -> :::exercise::: block
+    - exercise  -> :::exercise ... ::: block
     """
     parts: list[str] = []
 
@@ -25,9 +25,9 @@ def render_blocks_to_markdown(blocks: list[ContentBlock]) -> str:
             )
         elif block.type == "exercise":
             parts.append(
-                ":::exercise:::\n"
+                ":::exercise\n"
                 f"{block.content.strip()}\n"
-                ":::exercise:::"
+                ":::"
             )
         else:
             raise ValueError(f"Unsupported block type: {block.type}")

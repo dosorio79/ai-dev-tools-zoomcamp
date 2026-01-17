@@ -9,8 +9,11 @@ Python block rules:
 - Every python block must include all required imports.
 - Every python block must produce visible output using print(...).
 - Do not assume state from previous blocks.
+- If you use a standard library or third-party module (e.g., random, time, math, pandas, numpy),
+  you must include the import in the same block.
 
 Exercise block rules:
 - Exercise content must be returned as a block with type "exercise".
 - Exercise blocks must contain plain text only.
 - Do not wrap exercise content in markdown fences or inline markers.
+- Do NOT include :::exercise or ::: markers in exercise content.
