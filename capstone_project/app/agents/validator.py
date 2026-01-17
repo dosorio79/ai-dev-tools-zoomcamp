@@ -148,11 +148,49 @@ class ValidatorAgent:
             self._validate_python_block(block.content)
 
     def _validate_python_block(self, code: str) -> None:
+        # 1. Syntax validation (non-negotiable).
         try:
             ast.parse(code)
         except SyntaxError as exc:
             raise ValueError("Python block must contain valid syntax.") from exc
 
+        # 2. Size guardrail.
         lines = [line for line in code.splitlines() if line.strip()]
         if len(lines) > self.MAX_PYTHON_LINES:
-            raise ValueError("Python block must be minimal.")
+            raise ValueError("Python block must be short and focused.")
+
+        # 3. Visible output requirement (explicit, frontend-safe).
+        if "print(" not in code:
+            raise ValueError(
+                "Python block must produce visible output using print(...)."
+            )
+
+        # 4. Heuristic import checks (intentionally limited).
+        self._check_required_imports(code)
+
+    def _check_required_imports(self, code: str) -> None:
+        """Heuristic checks for common standard library and data-science imports."""
+        checks = {
+            # Data science.
+            "pd.": ("import pandas as pd", "from pandas import"),
+            "np.": ("import numpy as np", "from numpy import"),
+            "plt.": ("import matplotlib.pyplot as plt", "from matplotlib import"),
+            # Performance.
+            "timeit.": ("import timeit", "from timeit import"),
+            "time.": ("import time", "from time import"),
+            # Math / stats.
+            "math.": ("import math",),
+            "statistics.": ("import statistics", "from statistics import"),
+            # Randomness.
+            "random.": ("import random", "from random import"),
+            # Collections.
+            "Counter(": ("from collections import Counter",),
+            "defaultdict(": ("from collections import defaultdict",),
+        }
+
+        for symbol, required_imports in checks.items():
+            if symbol in code and not any(req in code for req in required_imports):
+                raise ValueError(
+                    f"Missing import for symbol '{symbol}'. "
+                    "Each python block must be self-contained."
+                )

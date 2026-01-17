@@ -1,5 +1,6 @@
-import json
 import inspect
+import json
+from pathlib import Path
 from typing import Any, List
 from pydantic_ai import Agent
 
@@ -7,16 +8,15 @@ from app.core.config import MODEL
 from app.models.agents import PlannedSection, GeneratedSection, ContentBlock
 from app.agents.content_llm_models import LLMLessonModel
 
+PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "content_llm_system.txt"
+
 
 class ContentAgentLLM:
     def __init__(self) -> None:
+        system_prompt = PROMPT_PATH.read_text(encoding="utf-8").strip()
         self.agent = Agent(
             model=MODEL,
-            system_prompt=(
-                "You are an expert instructor. "
-                "Generate lesson content as structured blocks. "
-                "Return only valid JSON matching the provided schema."
-            ),
+            system_prompt=system_prompt,
         )
 
     async def generate(

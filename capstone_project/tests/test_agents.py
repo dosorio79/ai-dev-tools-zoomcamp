@@ -262,6 +262,58 @@ def test_validator_rejects_invalid_python_syntax():
 
 
 @pytest.mark.unit
+def test_validator_requires_python_output():
+    validator = ValidatorAgent()
+    sections = [
+        GeneratedSection(
+            id="concept",
+            title="Concept",
+            minutes=15,
+            blocks=[ContentBlock(type="python", content="x = 1")],
+        )
+    ]
+
+    with pytest.raises(ValueError, match="visible output"):
+        validator.validate(sections)
+
+
+@pytest.mark.unit
+def test_validator_requires_python_imports():
+    validator = ValidatorAgent()
+    sections = [
+        GeneratedSection(
+            id="concept",
+            title="Concept",
+            minutes=15,
+            blocks=[
+                ContentBlock(
+                    type="python",
+                    content="df = pd.DataFrame({'a': [1]})\nprint(df)",
+                )
+            ],
+        )
+    ]
+
+    with pytest.raises(ValueError, match="required imports"):
+        validator.validate(sections)
+
+
+@pytest.mark.unit
+def test_validator_allows_expression_output():
+    validator = ValidatorAgent()
+    sections = [
+        GeneratedSection(
+            id="concept",
+            title="Concept",
+            minutes=15,
+            blocks=[ContentBlock(type="python", content="2 + 2")],
+        )
+    ]
+
+    validator.validate(sections)
+
+
+@pytest.mark.unit
 def test_validator_strict_minutes_requires_exact_total():
     validator = ValidatorAgent()
     sections = [
