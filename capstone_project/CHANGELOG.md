@@ -16,3 +16,10 @@ All notable changes to this project will be documented in this file.
 
 ### Docs
 - Documented runtime config and Docker proxy behavior in frontend and root docs.
+
+## [0.1.0] - 2026-01-01
+
+### Added
+- Initial FastAPI backend with `/lesson` and `/health`.
+- Agent pipeline (planner, content, validator) and Mongo telemetry.
+- React + Vite frontend with lesson rendering and Pyodide execution.
