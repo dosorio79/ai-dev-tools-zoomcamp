@@ -132,6 +132,18 @@ This starts the backend, MongoDB, and the frontend container.
 
 Note: the frontend image expects a prebuilt `frontend/dist` (run `npm run build` in `frontend/` before building the containers).
 
+Quick start (recommended):
+
+```bash
+make build
+```
+
+If you've already built the images, you can use:
+
+```bash
+make start
+```
+
 For Docker, the frontend container proxies `/lesson` and `/health` to the backend, so you can
 leave `API_BASE` empty in `frontend/public/runtime-config.js` to use same-origin requests.
 To call the backend directly, set `API_BASE` to `http://localhost:8000`.
@@ -201,6 +213,16 @@ Frontend tests:
 ```bash
 cd frontend
 npm test
+```
+
+Makefile shortcuts:
+
+```bash
+make test
+make test-unit
+make test-api
+make test-llm
+make test-integration
 ```
 
 ---

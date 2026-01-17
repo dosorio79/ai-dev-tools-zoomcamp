@@ -60,7 +60,7 @@ It serves:
 - No server-side logic
 
 Important notes:
-- The frontend calls the backend API directly
+- The frontend calls the backend API via the nginx proxy (`/lesson`, `/health`)
 - The container exists for reproducibility and mirrors the production static build
 
 The frontend container serves the UI at:
@@ -77,3 +77,17 @@ The backend reads environment variables from `.env` or the container environment
 - `MODEL`: LLM model name (defaults to `gpt-4.1-mini`)
 - `USE_LLM_CONTENT`: toggle LLM-backed content generation (`true`/`false`)
 - `CORS_ORIGINS`: comma-separated list of allowed origins (default: `http://localhost:8080`)
+
+## Quick start
+
+If you have Make installed, the fastest path is:
+
+```bash
+make build
+```
+
+If images are already built:
+
+```bash
+make start
+```

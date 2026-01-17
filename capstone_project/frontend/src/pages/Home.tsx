@@ -110,7 +110,7 @@ export default function Home() {
             <div>
               <h1 className="text-2xl font-serif font-bold text-foreground">uLearn</h1>
               <p className="text-sm text-muted-foreground">
-                The best remedy to doomscrolling
+                The best remedy for doomscrolling
               </p>
             </div>
           </div>

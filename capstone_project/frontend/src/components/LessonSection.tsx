@@ -1,6 +1,7 @@
-import { Clock } from 'lucide-react';
+import { Clock, Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useState } from 'react';
 import { CodeBlock } from './CodeBlock';
 import { ExerciseBlock } from './ExerciseBlock';
 import { LessonSection as LessonSectionType } from '@/types/lesson';
@@ -48,6 +49,7 @@ function parseExerciseBlocks(markdown: string): Array<{ type: 'markdown' | 'exer
 
 export function LessonSection({ section }: LessonSectionProps) {
   const contentParts = parseExerciseBlocks(section.content_markdown);
+  const [copied, setCopied] = useState(false);
   const chipLabel =
     section.id === 'concept'
       ? '🧠 Core concept'
@@ -56,6 +58,12 @@ export function LessonSection({ section }: LessonSectionProps) {
       : section.id === 'exercise'
       ? '✍️ Exercise'
       : section.title;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(section.content_markdown);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <section className="mb-8 last:mb-0" data-testid={`section-${section.id}`}>
@@ -66,6 +74,14 @@ export function LessonSection({ section }: LessonSectionProps) {
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
           <span>{section.minutes} min</span>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="ml-2 inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {copied ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+            {copied ? 'Copied' : 'Copy md'}
+          </button>
         </div>
       </div>
       
