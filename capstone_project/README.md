@@ -69,7 +69,16 @@ Lesson generation is implemented using multiple cooperating agents:
 - **PlannerAgent** – defines lesson structure and time budget
 - **ContentAgent** – generates structured content blocks per section (stub)
 - **ContentAgentLLM** – optional LLM-backed content generator
-- **ValidatorAgent** – enforces structure and normalizes section minutes to 15 total
+- **ValidatorAgent** – enforces structure (required sections, block formatting) and normalizes section minutes to 15 total
+
+Prompt sources for the LLM content agent:
+- System prompt: `app/agents/prompts/content_llm_system.txt`
+- User prompt template: `app/agents/prompts/content_llm_user.txt`
+See `docs/prompts.md` for editing guidance.
+
+Prompt rules summary:
+- Text blocks must include a paragraph and a bullet or numbered list.
+- Exercise blocks must be plain text without `:::exercise` markers or markdown fences.
 
 A detailed description of agent responsibilities and orchestration can be found in `docs/agent-architecture.md`.
 The lesson format PoC and validator rule candidates are summarized in `docs/lesson-generation-poc.md`.

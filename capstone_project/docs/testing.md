@@ -40,6 +40,7 @@ What is covered:
 - Lesson orchestration.
 - API contract and integration workflow.
 - Telemetry model validation (happy path and invalid level).
+- Text block formatting rules (paragraph + list requirement).
 
 Markers are available to focus on subsets:
 
