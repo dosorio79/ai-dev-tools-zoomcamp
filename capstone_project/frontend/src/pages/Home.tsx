@@ -16,34 +16,35 @@ import { LessonResponse } from '@/types/lesson';
 
 type DifficultyLevel = 'beginner' | 'intermediate';
 
-const LOADING_MESSAGES = [
-  'Planning a 15-minute lesson...',
-  'Selecting the key concepts...',
-  'Building a concrete example...',
-  'Checking scope and difficulty...',
-  'Finalizing lesson...',
+const LOADING_MESSAGE_STEPS = [
+  { maxMs: 2500, text: 'Planning a 15-minute lesson...' },
+  { maxMs: 6000, text: 'Selecting the key concepts...' },
+  { maxMs: 10000, text: 'Building a concrete example...' },
+  { maxMs: 15000, text: 'Finalizing lesson...' },
 ];
-const LOADING_ROTATION_MS = 650;
 
 export default function Home() {
   const [topic, setTopic] = useState('');
   const [level, setLevel] = useState<DifficultyLevel>('intermediate');
   const [isLoading, setIsLoading] = useState(false);
   const [lesson, setLesson] = useState<LessonResponse | null>(null);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [loadingPhase, setLoadingPhase] = useState<'idle' | 'requesting' | 'received'>('idle');
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [topicNeedsAttention, setTopicNeedsAttention] = useState(false);
   const topicInputRef = useRef<HTMLInputElement | null>(null);
   const isTopicEmpty = !topic.trim();
 
   useEffect(() => {
     if (!isLoading) {
-      setLoadingMessageIndex(0);
+      setElapsedMs(0);
+      setLoadingPhase('idle');
       return;
     }
 
+    const startedAt = Date.now();
     const interval = setInterval(() => {
-      setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
-    }, LOADING_ROTATION_MS);
+      setElapsedMs(Date.now() - startedAt);
+    }, 250);
 
     return () => clearInterval(interval);
   }, [isLoading]);
@@ -70,8 +71,10 @@ export default function Home() {
     }
 
     setIsLoading(true);
+    setLoadingPhase('requesting');
     try {
       const result = await generateLesson({ topic, level });
+      setLoadingPhase('received');
       setLesson(result);
     } catch (error) {
       console.error('Failed to generate lesson:', error);
@@ -86,6 +89,15 @@ export default function Home() {
     setLevel('intermediate');
   };
 
+  const loadingMessage =
+    loadingPhase === 'received'
+      ? 'Rendering lesson...'
+      : LOADING_MESSAGE_STEPS.find((step) => elapsedMs <= step.maxMs)?.text ||
+        'Finalizing lesson...';
+  const loadingProgress = loadingPhase === 'received'
+    ? 100
+    : Math.min(90, Math.round((elapsedMs / 15000) * 90));
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -97,7 +109,9 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-2xl font-serif font-bold text-foreground">uLearn</h1>
-              <p className="text-sm text-muted-foreground">Micro-learning, generated on demand</p>
+              <p className="text-sm text-muted-foreground">
+                The best remedy to doomscrolling
+              </p>
             </div>
           </div>
         </div>
@@ -118,6 +132,9 @@ export default function Home() {
                 <h2 className="text-xl font-serif font-bold text-foreground mb-2">
                   Learn something new in 15 minutes
                 </h2>
+                <p className="text-sm text-muted-foreground">
+                  Short lessons, clear takeaways, zero doomscrolling.
+                </p>
                 <p className="text-muted-foreground">
                   Enter any data or Python topic and get a focused lesson instantly
                 </p>
@@ -206,25 +223,35 @@ export default function Home() {
                 </div>
 
                 {/* Submit Button */}
-                <Button
-                  type="submit"
-                  className={`w-full h-12 text-base font-medium ${
-                    isTopicEmpty && !isLoading ? 'opacity-60' : ''
-                  }`}
-                  disabled={isLoading}
-                  aria-disabled={isTopicEmpty || isLoading}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <span className="transition-opacity duration-200">
-                        {LOADING_MESSAGES[loadingMessageIndex]}
-                      </span>
+                <div className="space-y-3">
+                  {isLoading && (
+                    <div className="h-1 w-full overflow-hidden rounded-full bg-secondary/40">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-300"
+                        style={{ width: `${loadingProgress}%` }}
+                      />
                     </div>
-                  ) : (
-                    'Generate lesson'
                   )}
-                </Button>
+                  <Button
+                    type="submit"
+                    className={`w-full h-12 text-base font-medium ${
+                      isTopicEmpty && !isLoading ? 'opacity-60' : ''
+                    }`}
+                    disabled={isLoading}
+                    aria-disabled={isTopicEmpty || isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span className="transition-opacity duration-200">
+                          {loadingMessage}
+                        </span>
+                      </div>
+                    ) : (
+                      'Generate lesson'
+                    )}
+                  </Button>
+                </div>
               </form>
             </div>
 
@@ -243,9 +270,45 @@ export default function Home() {
                 <div className="text-sm text-muted-foreground">topics</div>
               </div>
             </div>
+
+            {/* Why it works */}
+            <div className="mt-8 grid gap-3 text-sm text-muted-foreground">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground/80">
+                Why it works
+              </p>
+              <div className="grid gap-2">
+                <p>Focused scope prevents cognitive overload.</p>
+                <p>Runnable examples make ideas stick quickly.</p>
+                <p>Exercises turn concepts into memory.</p>
+              </div>
+            </div>
           </div>
         )}
       </main>
+
+      <footer className="border-t border-border bg-card">
+        <div className="container max-w-4xl mx-auto px-4 py-4 text-xs text-muted-foreground flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <span>Built for fast learning sessions.</span>
+          <div className="flex gap-4">
+            <a
+              className="hover:text-foreground transition-colors"
+              href="https://github.com/dosorio79/ai-dev-tools-zoomcamp"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
+            <a
+              className="hover:text-foreground transition-colors"
+              href="https://github.com/dosorio79/ai-dev-tools-zoomcamp/tree/main/docs"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Docs
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
