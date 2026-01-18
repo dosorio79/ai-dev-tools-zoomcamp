@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Info, Loader2, Sparkles } from 'lucide-react';
+import { Info, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import {
 import { LessonRenderer } from '@/components/LessonRenderer';
 import { generateLesson } from '@/api/lessonClient';
 import { LessonResponse } from '@/types/lesson';
+import { Logo } from '@/components/Logo';
 
 type DifficultyLevel = 'beginner' | 'intermediate';
 
@@ -104,11 +105,8 @@ export default function Home() {
       <header className="border-b border-border bg-card">
         <div className="container max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <BookOpen className="h-6 w-6 text-primary" />
-            </div>
             <div>
-              <h1 className="text-2xl font-serif font-bold text-foreground">uLearn</h1>
+              <Logo />
               <p className="text-sm text-muted-foreground">
                 The best remedy for doomscrolling
               </p>

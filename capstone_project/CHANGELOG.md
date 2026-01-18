@@ -6,13 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Markdown export controls (copy/download full lesson, copy per section).
-- Frontend UX refinements (loading phases/progress, “Why it works”, feedback buttons).
+- Frontend UX refinements (loading phases/progress, “Why it works”, feedback buttons, header logo).
 - Runtime API base override via `frontend/public/runtime-config.js` for flexible frontend deployment.
 - Nginx reverse proxy for `/lesson` and `/health` in the frontend container.
 
 ### Changed
 - Enforced structured text formatting in validator and prompts.
 - Updated exercise markdown fence format for frontend rendering.
+- Removed legacy lovable tagger and updated meta images.
 - Frontend API client now supports same-origin requests and runtime base selection.
 - Backend LLM content generation uses async execution with robust result parsing.
 - `/lesson` endpoint serves without trailing-slash redirects.
