@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+- Refined frontend typography hierarchy for clearer primary/secondary/tertiary text contrast.
+- Tweaked header/logo styling and in-card spacing for a tighter, calmer layout.
+- Polished lesson section styling (section borders, larger chips, icon-only copy control).
+
 ## [0.3.0] - 2026-01-17
 
 ### Added

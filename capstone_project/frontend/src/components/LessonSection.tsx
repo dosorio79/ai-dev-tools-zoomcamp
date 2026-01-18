@@ -58,6 +58,14 @@ export function LessonSection({ section }: LessonSectionProps) {
       : section.id === 'exercise'
       ? '✍️ Exercise'
       : section.title;
+  const sectionToneClass =
+    section.id === 'concept'
+      ? 'border-border/80'
+      : section.id === 'example'
+      ? 'border-orange-200/80'
+      : section.id === 'exercise'
+      ? 'border-blue-200/80'
+      : 'border-border/80';
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(section.content_markdown);
@@ -66,9 +74,12 @@ export function LessonSection({ section }: LessonSectionProps) {
   };
 
   return (
-    <section className="mb-8 last:mb-0" data-testid={`section-${section.id}`}>
+    <section
+      className={`mb-8 last:mb-0 rounded-lg border border-t-2 px-3.5 py-3.5 ${sectionToneClass}`}
+      data-testid={`section-${section.id}`}
+    >
       <div className="flex items-center justify-between mb-4 pb-2 border-b border-border">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm font-semibold text-foreground transition-colors hover:bg-secondary/50">
+        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3.5 py-1.5 text-[0.9rem] font-semibold text-foreground transition-colors hover:bg-secondary/50">
           {chipLabel}
         </span>
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -77,10 +88,10 @@ export function LessonSection({ section }: LessonSectionProps) {
           <button
             type="button"
             onClick={handleCopy}
-            className="ml-2 inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="ml-2 inline-flex items-center rounded-full border border-border bg-background px-2 py-1 text-xs text-[#8a8a8a] hover:text-[#1f1f1f] transition-colors"
           >
             {copied ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
-            {copied ? 'Copied' : 'Copy md'}
+            <span className="sr-only">{copied ? 'Copied' : 'Copy markdown'}</span>
           </button>
         </div>
       </div>
