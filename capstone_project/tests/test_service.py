@@ -1,12 +1,16 @@
 # Lesson orchestration tests
+import asyncio
+from datetime import datetime, timezone
+from unittest.mock import Mock
+
 import pytest
 
-from datetime import datetime, timezone
+from pydantic import BaseModel, ValidationError
 
-from pydantic import ValidationError
-
+from app.models.agents import ContentBlock, GeneratedSection
 from app.models.api import LessonRequest
 from app.models.db import LessonRun
+from app.services import lesson_service
 from app.services.lesson_service import generate_lesson
 
 pytestmark = pytest.mark.unit
@@ -71,3 +75,107 @@ def test_lesson_run_validation_accepts_valid_payload():
 
     assert lesson_run.run_id == "run-456"
     assert lesson_run.level == "beginner"
+
+
+def _make_validation_error() -> ValidationError:
+    class DummyModel(BaseModel):
+        value: int
+
+    try:
+        DummyModel.model_validate({"value": "invalid"})
+    except ValidationError as exc:
+        return exc
+    raise AssertionError("Expected ValidationError to be raised.")
+
+
+def test_generate_lesson_persists_schema_failure(monkeypatch):
+    request = LessonRequest(
+        session_id="e8f94f79-30b7-49a6-8d59-8d6061a36b55",
+        topic="vector databases",
+        level="beginner",
+    )
+    validation_error = _make_validation_error()
+
+    class DummyPlanner:
+        def plan(self, topic: str, level: str):
+            return []
+
+    class DummyContent:
+        def __init__(self, exc: ValidationError):
+            self.exc = exc
+
+        async def generate(self, topic: str, planned_sections):
+            raise self.exc
+
+    class DummyValidator:
+        def validate(self, sections):
+            return sections
+
+    insert_failure = Mock()
+
+    monkeypatch.setattr(lesson_service, "planner_agent", DummyPlanner())
+    monkeypatch.setattr(lesson_service, "content_agent", DummyContent(validation_error))
+    monkeypatch.setattr(lesson_service, "validator_agent", DummyValidator())
+    monkeypatch.setattr(lesson_service, "insert_lesson_failure", insert_failure)
+
+    with pytest.raises(ValidationError):
+        asyncio.run(lesson_service.generate_lesson(request))
+
+    assert insert_failure.called
+    failure_doc = insert_failure.call_args[0][0]
+    assert failure_doc["error_type"] == "schema_validation"
+    assert failure_doc["topic"] == request.topic
+
+
+def test_generate_lesson_persists_content_failure(monkeypatch):
+    request = LessonRequest(
+        session_id="7b42e7f6-2cd4-43fd-b9bc-8b0d6d40b9f2",
+        topic="vector databases",
+        level="beginner",
+    )
+
+    class DummyPlanner:
+        def plan(self, topic: str, level: str):
+            return []
+
+    class DummyContent:
+        async def generate(self, topic: str, planned_sections):
+            return [
+                GeneratedSection(
+                    id="concept",
+                    title="Concept",
+                    minutes=5,
+                    blocks=[ContentBlock(type="text", content="Paragraph.\n\n- bullet")],
+                ),
+                GeneratedSection(
+                    id="example",
+                    title="Example",
+                    minutes=5,
+                    blocks=[ContentBlock(type="text", content="Paragraph.\n\n- bullet")],
+                ),
+                GeneratedSection(
+                    id="exercise",
+                    title="Exercise",
+                    minutes=5,
+                    blocks=[ContentBlock(type="exercise", content="Do the thing.")],
+                ),
+            ]
+
+    class DummyValidator:
+        def validate(self, sections):
+            raise ValueError("Bad python block")
+
+    insert_failure = Mock()
+
+    monkeypatch.setattr(lesson_service, "planner_agent", DummyPlanner())
+    monkeypatch.setattr(lesson_service, "content_agent", DummyContent())
+    monkeypatch.setattr(lesson_service, "validator_agent", DummyValidator())
+    monkeypatch.setattr(lesson_service, "insert_lesson_failure", insert_failure)
+
+    with pytest.raises(ValueError):
+        asyncio.run(lesson_service.generate_lesson(request))
+
+    assert insert_failure.called
+    failure_doc = insert_failure.call_args[0][0]
+    assert failure_doc["error_type"] == "content_validation"
+    assert failure_doc["topic"] == request.topic

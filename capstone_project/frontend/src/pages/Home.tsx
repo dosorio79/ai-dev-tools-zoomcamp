@@ -114,7 +114,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div>
               <Logo />
-              <p className="text-xs text-[#8a8a8a]">
+              <p className="text-xs text-tone-tertiary">
                 The best remedy for doomscrolling
               </p>
             </div>
@@ -134,13 +134,13 @@ export default function Home() {
                 <div className="inline-flex p-3 rounded-full bg-primary/10 mb-4">
                   <Sparkles className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-3xl font-serif font-semibold text-[#1f1f1f] leading-snug mb-4">
+                <h2 className="text-3xl font-serif font-semibold text-tone-primary leading-snug mb-4">
                   Learn something new in <span className="whitespace-nowrap">15 minutes</span>
                 </h2>
-                <p className="text-base text-[#5f5f5f] leading-relaxed">
+                <p className="text-base text-tone-secondary leading-relaxed">
                   Short lessons, clear takeaways, zero doomscrolling.
                 </p>
-                <p className="text-base text-[#5f5f5f] leading-relaxed">
+                <p className="text-base text-tone-secondary leading-relaxed">
                   Enter a data or Python topic. We’ll handle the thinking.
                 </p>
               </div>
@@ -149,7 +149,7 @@ export default function Home() {
                 {/* Topic Input */}
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="topic" className="text-[#8a8a8a] font-medium">
+                    <Label htmlFor="topic" className="text-tone-tertiary font-medium">
                       What do you want to learn?
                     </Label>
                     <TooltipProvider>
@@ -157,7 +157,7 @@ export default function Home() {
                         <TooltipTrigger asChild>
                           <button
                             type="button"
-                            className="text-[#8a8a8a] hover:text-[#1f1f1f] transition-colors"
+                            className="text-tone-tertiary hover:text-tone-primary transition-colors"
                             aria-label="Topic guidance"
                           >
                             <Info className="h-4 w-4" />
@@ -180,7 +180,7 @@ export default function Home() {
                         setTopicNeedsAttention(false);
                       }
                     }}
-                    className={`h-12 text-base text-[#1f1f1f] placeholder:text-[#8a8a8a] transition ${
+                    className={`h-12 text-base text-tone-primary placeholder:text-tone-tertiary transition ${
                       topicNeedsAttention
                         ? 'border-destructive ring-2 ring-destructive/50'
                         : 'focus-visible:ring-1 focus-visible:ring-primary/40'
@@ -194,7 +194,7 @@ export default function Home() {
                 {/* Difficulty Selector */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[#8a8a8a] font-medium">Difficulty level</Label>
+                    <Label className="text-tone-tertiary font-medium">Difficulty level</Label>
                   </div>
                   <div className="flex gap-3">
                     <button
@@ -203,7 +203,7 @@ export default function Home() {
                       className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all font-medium ${
                         level === 'beginner'
                           ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border/60 bg-secondary/20 text-[#8a8a8a] hover:border-primary/50'
+                          : 'border-border/60 bg-secondary/20 text-tone-tertiary hover:border-primary/50'
                       }`}
                       disabled={isLoading}
                     >
@@ -215,7 +215,7 @@ export default function Home() {
                       className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all font-medium ${
                         level === 'intermediate'
                           ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border/60 bg-secondary/20 text-[#8a8a8a] hover:border-primary/50'
+                          : 'border-border/60 bg-secondary/20 text-tone-tertiary hover:border-primary/50'
                       }`}
                       disabled={isLoading}
                     >
@@ -237,7 +237,7 @@ export default function Home() {
                           style={{ width: `${loadingProgress}%` }}
                         />
                       </div>
-                      <div className="text-xs text-[#8a8a8a]">
+                      <div className="text-xs text-tone-tertiary">
                         {elapsedSeconds}s elapsed
                       </div>
                     </div>
@@ -270,21 +270,21 @@ export default function Home() {
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
               <div className="p-4 space-y-1">
                 <div className="text-2xl font-bold text-primary">15</div>
-                <div className="text-sm text-[#5f5f5f]">minutes</div>
+                <div className="text-sm text-tone-secondary">minutes</div>
               </div>
               <div className="p-4 space-y-1">
                 <div className="text-2xl font-bold text-primary">3</div>
-                <div className="text-sm text-[#5f5f5f]">sections</div>
+                <div className="text-sm text-tone-secondary">sections</div>
               </div>
               <div className="p-4 space-y-1">
                 <div className="text-2xl font-bold text-primary">∞</div>
-                <div className="text-sm text-[#5f5f5f]">Generated just for you</div>
+                <div className="text-sm text-tone-secondary">Generated just for you</div>
               </div>
             </div>
 
             {/* Why it works */}
-            <div className="mt-8 grid gap-3 text-sm text-[#5f5f5f]">
-              <p className="text-xs uppercase tracking-wide text-[#8a8a8a]">
+            <div className="mt-8 grid gap-3 text-sm text-tone-secondary">
+              <p className="text-xs uppercase tracking-wide text-tone-tertiary">
                 Why it works
               </p>
               <div className="grid gap-2">
@@ -298,11 +298,11 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-border bg-card">
-        <div className="container max-w-4xl mx-auto px-4 py-4 text-xs text-[#8a8a8a] flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="container max-w-4xl mx-auto px-4 py-4 text-xs text-tone-tertiary flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <span>Built for fast learning sessions.</span>
           <div className="flex gap-4">
             <a
-              className="hover:text-[#1f1f1f] transition-colors"
+              className="hover:text-tone-primary transition-colors"
               href="https://github.com/dosorio79/ai-dev-tools-zoomcamp"
               target="_blank"
               rel="noreferrer"
@@ -310,7 +310,7 @@ export default function Home() {
               GitHub
             </a>
             <a
-              className="hover:text-[#1f1f1f] transition-colors"
+              className="hover:text-tone-primary transition-colors"
               href="https://github.com/dosorio79/ai-dev-tools-zoomcamp/tree/main/docs"
               target="_blank"
               rel="noreferrer"

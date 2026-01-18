@@ -88,7 +88,7 @@ export function LessonSection({ section }: LessonSectionProps) {
           <button
             type="button"
             onClick={handleCopy}
-            className="ml-2 inline-flex items-center rounded-full border border-border bg-background px-2 py-1 text-xs text-[#8a8a8a] hover:text-[#1f1f1f] transition-colors"
+            className="ml-2 inline-flex items-center rounded-full border border-border bg-background px-2 py-1 text-xs text-tone-tertiary hover:text-tone-primary transition-colors"
           >
             {copied ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
             <span className="sr-only">{copied ? 'Copied' : 'Copy markdown'}</span>

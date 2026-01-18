@@ -13,6 +13,9 @@ All colors MUST be HSL.
   :root {
     --background: 0 0% 96%;
     --foreground: 0 0% 9%;
+    --foreground-primary: 0 0% 12%;
+    --foreground-secondary: 0 0% 37%;
+    --foreground-tertiary: 0 0% 54%;
 
     --card: 0 0% 98%;
     --card-foreground: 0 0% 9%;
@@ -99,6 +102,9 @@ All colors MUST be HSL.
   .dark {
     --background: 0 0% 9%;
     --foreground: 0 0% 98%;
+    --foreground-primary: 0 0% 98%;
+    --foreground-secondary: 0 0% 70%;
+    --foreground-tertiary: 0 0% 55%;
 
     --card: 0 0% 14%;
     --card-foreground: 0 0% 98%;
