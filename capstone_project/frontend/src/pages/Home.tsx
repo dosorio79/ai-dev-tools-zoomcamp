@@ -127,14 +127,14 @@ export default function Home() {
                 <div className="inline-flex p-3 rounded-full bg-primary/10 mb-4">
                   <Sparkles className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-xl font-serif font-bold text-foreground mb-2">
+                <h2 className="text-xl font-serif font-bold text-foreground mb-2 leading-none tracking-tight">
                   Learn something new in 15 minutes
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   Short lessons, clear takeaways, zero doomscrolling.
                 </p>
                 <p className="text-muted-foreground">
-                  Enter a data or Python topic. We’ll do the thinking.
+                  Enter a data or Python topic. We’ll handle the thinking.
                 </p>
               </div>
 
