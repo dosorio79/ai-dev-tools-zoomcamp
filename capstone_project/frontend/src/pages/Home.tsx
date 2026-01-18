@@ -64,10 +64,10 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [topicNeedsAttention]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitLesson = async (nextTopic?: string) => {
     if (isLoading) return;
-    if (isTopicEmpty) {
+    const resolvedTopic = (nextTopic ?? topic).trim();
+    if (!resolvedTopic) {
       setTopicNeedsAttention(true);
       topicInputRef.current?.focus();
       return;
@@ -76,7 +76,7 @@ export default function Home() {
     setIsLoading(true);
     setLoadingPhase('requesting');
     try {
-      const result = await generateLesson({ topic, level });
+      const result = await generateLesson({ topic: resolvedTopic, level });
       setLoadingPhase('received');
       setLesson(result);
     } catch (error) {
@@ -88,6 +88,18 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitLesson();
+  };
+
+  const handleQuickExample = async (exampleTopic: string, exampleLevel: DifficultyLevel) => {
+    setTopic(exampleTopic);
+    setLevel(exampleLevel);
+    setTopicNeedsAttention(false);
+    await submitLesson(exampleTopic);
   };
 
   const handleReset = () => {
@@ -189,6 +201,46 @@ export default function Home() {
                     ref={topicInputRef}
                     data-highlight={topicNeedsAttention ? 'true' : 'false'}
                   />
+                  <div className="flex flex-wrap items-center gap-2 text-[0.7rem] text-tone-tertiary">
+                    <span>Or try:</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleQuickExample(
+                          'statistical tests comparing population means',
+                          'intermediate',
+                        )
+                      }
+                      className="rounded-full border border-border bg-background px-2 py-0.5 text-tone-secondary transition-colors hover:text-tone-primary"
+                      disabled={isLoading}
+                    >
+                      statistical tests comparing population means
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickExample('Pandas groupby performance', 'intermediate')}
+                      className="rounded-full border border-border bg-background px-2 py-0.5 text-tone-secondary transition-colors hover:text-tone-primary"
+                      disabled={isLoading}
+                    >
+                      Pandas groupby performance
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickExample('Supervised versus unsupervised modeling', 'beginner')}
+                      className="rounded-full border border-border bg-background px-2 py-0.5 text-tone-secondary transition-colors hover:text-tone-primary"
+                      disabled={isLoading}
+                    >
+                      Supervised versus unsupervised modeling
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickExample('rolling vs expanding windows in pandas', 'intermediate')}
+                      className="rounded-full border border-border bg-background px-2 py-0.5 text-tone-secondary transition-colors hover:text-tone-primary"
+                      disabled={isLoading}
+                    >
+                      rolling vs expanding windows in pandas
+                    </button>
+                  </div>
                 </div>
 
                 {/* Difficulty Selector */}
