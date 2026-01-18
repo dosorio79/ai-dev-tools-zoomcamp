@@ -68,7 +68,7 @@ export function LessonSection({ section }: LessonSectionProps) {
   return (
     <section className="mb-8 last:mb-0" data-testid={`section-${section.id}`}>
       <div className="flex items-center justify-between mb-4 pb-2 border-b border-border">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm font-semibold text-foreground">
+        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm font-semibold text-foreground transition-colors hover:bg-secondary/50">
           {chipLabel}
         </span>
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">

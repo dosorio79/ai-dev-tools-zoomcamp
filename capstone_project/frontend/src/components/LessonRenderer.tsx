@@ -105,6 +105,7 @@ export function LessonRenderer({ lesson, onReset }: LessonRendererProps) {
               size="sm"
               className="gap-2"
               onClick={() => setFeedback('yes')}
+              aria-pressed={feedback === 'yes'}
             >
               👍 Yes
             </Button>
@@ -113,6 +114,7 @@ export function LessonRenderer({ lesson, onReset }: LessonRendererProps) {
               size="sm"
               className="gap-2"
               onClick={() => setFeedback('no')}
+              aria-pressed={feedback === 'no'}
             >
               👎 Not really
             </Button>

@@ -7,7 +7,7 @@ export function Logo() {
         <BookOpen className="h-6 w-6 text-orange-600" />
       </div>
       <span className="text-lg font-semibold tracking-tighter text-foreground leading-none">
-        µLearn
+        <span className="text-orange-600">µ</span>Learn
       </span>
     </div>
   );

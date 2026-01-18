@@ -41,6 +41,7 @@ What is covered:
 - API contract and integration workflow.
 - Telemetry model validation (happy path and invalid level).
 - Text block formatting rules (paragraph + list requirement).
+- UI export/copy and feedback interactions are covered in frontend tests.
 
 Markers are available to focus on subsets:
 

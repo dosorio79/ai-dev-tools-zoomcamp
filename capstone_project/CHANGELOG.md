@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Markdown export controls (copy/download full lesson, copy per section).
 - Frontend UX refinements (loading phases/progress, “Why it works”, feedback buttons, header logo).
+- Loading error toast, elapsed seconds, and section chip actions.
 - Runtime API base override via `frontend/public/runtime-config.js` for flexible frontend deployment.
 - Nginx reverse proxy for `/lesson` and `/health` in the frontend container.
 

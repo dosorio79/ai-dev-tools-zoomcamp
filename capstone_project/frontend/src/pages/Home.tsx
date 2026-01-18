@@ -14,6 +14,7 @@ import { LessonRenderer } from '@/components/LessonRenderer';
 import { generateLesson } from '@/api/lessonClient';
 import { LessonResponse } from '@/types/lesson';
 import { Logo } from '@/components/Logo';
+import { useToast } from '@/components/ui/use-toast';
 
 type DifficultyLevel = 'beginner' | 'intermediate';
 
@@ -34,6 +35,7 @@ export default function Home() {
   const [topicNeedsAttention, setTopicNeedsAttention] = useState(false);
   const topicInputRef = useRef<HTMLInputElement | null>(null);
   const isTopicEmpty = !topic.trim();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!isLoading) {
@@ -79,6 +81,10 @@ export default function Home() {
       setLesson(result);
     } catch (error) {
       console.error('Failed to generate lesson:', error);
+      toast({
+        title: 'Lesson failed',
+        description: 'Please try again in a moment.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -95,6 +101,7 @@ export default function Home() {
       ? 'Rendering lesson...'
       : LOADING_MESSAGE_STEPS.find((step) => elapsedMs <= step.maxMs)?.text ||
         'Finalizing lesson...';
+  const elapsedSeconds = Math.max(1, Math.round(elapsedMs / 1000));
   const loadingProgress = loadingPhase === 'received'
     ? 100
     : Math.min(90, Math.round((elapsedMs / 15000) * 90));
@@ -103,7 +110,7 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
-        <div className="container max-w-4xl mx-auto px-4 py-6">
+        <div className="container max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <div>
               <Logo />
@@ -127,13 +134,13 @@ export default function Home() {
                 <div className="inline-flex p-3 rounded-full bg-primary/10 mb-4">
                   <Sparkles className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-xl font-serif font-bold text-foreground mb-2 leading-none tracking-tight">
-                  Learn something new in 15 minutes
+                <h2 className="text-3xl font-serif font-semibold text-foreground leading-snug mb-4">
+                  Learn something new in <span className="whitespace-nowrap">15 minutes</span>
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-base text-muted-foreground leading-relaxed">
                   Short lessons, clear takeaways, zero doomscrolling.
                 </p>
-                <p className="text-muted-foreground">
+                <p className="text-base text-muted-foreground leading-relaxed">
                   Enter a data or Python topic. We’ll handle the thinking.
                 </p>
               </div>
@@ -176,7 +183,7 @@ export default function Home() {
                     className={`h-12 text-base transition ${
                       topicNeedsAttention
                         ? 'border-destructive ring-2 ring-destructive/50'
-                        : 'focus-visible:ring-2 focus-visible:ring-primary/60'
+                        : 'focus-visible:ring-1 focus-visible:ring-primary/40'
                     }`}
                     disabled={isLoading}
                     ref={topicInputRef}
@@ -188,9 +195,6 @@ export default function Home() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-foreground font-medium">Difficulty level</Label>
-                    <Badge variant="secondary" className="capitalize">
-                      {level}
-                    </Badge>
                   </div>
                   <div className="flex gap-3">
                     <button
@@ -223,20 +227,29 @@ export default function Home() {
                 {/* Submit Button */}
                 <div className="space-y-3">
                   {isLoading && (
-                    <div className="h-1 w-full overflow-hidden rounded-full bg-secondary/40">
+                    <div className="space-y-2">
                       <div
-                        className="h-full rounded-full bg-primary transition-all duration-300"
-                        style={{ width: `${loadingProgress}%` }}
-                      />
+                        className="h-1 w-full overflow-hidden rounded-full bg-secondary/40"
+                        aria-hidden
+                      >
+                        <div
+                          className="h-full rounded-full bg-primary transition-all duration-300"
+                          style={{ width: `${loadingProgress}%` }}
+                        />
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {elapsedSeconds}s elapsed
+                      </div>
                     </div>
                   )}
                   <Button
                     type="submit"
-                    className={`w-full h-12 text-base font-medium ${
-                      isTopicEmpty && !isLoading ? 'opacity-60' : ''
-                    }`}
+                  className={`w-full h-12 text-base font-semibold ${
+                    isTopicEmpty && !isLoading ? 'opacity-60' : ''
+                  }`}
                     disabled={isLoading}
                     aria-disabled={isTopicEmpty || isLoading}
+                    aria-live="polite"
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">
@@ -254,16 +267,16 @@ export default function Home() {
             </div>
 
             {/* Feature hints */}
-            <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-              <div className="p-4">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div className="p-4 space-y-1">
                 <div className="text-2xl font-bold text-primary">15</div>
                 <div className="text-sm text-muted-foreground">minutes</div>
               </div>
-              <div className="p-4">
+              <div className="p-4 space-y-1">
                 <div className="text-2xl font-bold text-primary">3</div>
                 <div className="text-sm text-muted-foreground">sections</div>
               </div>
-              <div className="p-4">
+              <div className="p-4 space-y-1">
                 <div className="text-2xl font-bold text-primary">∞</div>
                 <div className="text-sm text-muted-foreground">Generated just for you</div>
               </div>

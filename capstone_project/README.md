@@ -80,6 +80,10 @@ Prompt rules summary:
 - Text blocks must include a paragraph and a bullet or numbered list.
 - Exercise blocks must be plain text without `:::exercise` markers or markdown fences.
 
+Frontend UX:
+- Per-section copy buttons and full-lesson Markdown export.
+- Feedback prompt and improved loading/error states.
+
 A detailed description of agent responsibilities and orchestration can be found in `docs/agent-architecture.md`.
 The lesson format PoC and validator rule candidates are summarized in `docs/lesson-generation-poc.md`.
 

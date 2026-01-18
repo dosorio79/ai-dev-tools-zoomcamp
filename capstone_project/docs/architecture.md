@@ -39,6 +39,10 @@ This document describes the system structure and data flow for the uLearn capsto
 - `frontend/src/pages/Home.tsx`: Input flow and lesson rendering.
 - `frontend/src/components/*`: Lesson section rendering, code blocks, exercise blocks.
 
+UX notes:
+- Sections include chip headers with copy actions and full-lesson export controls.
+- Loading includes elapsed-time phases with progress and toast error handling.
+
 ## Contracts and constraints
 
 - OpenAPI contract in `openapi.yaml` is the single source of truth.
