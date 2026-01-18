@@ -27,8 +27,21 @@ def get_collection() -> Collection[Any]:
     db = client[config.MONGO_DB_NAME]
     return db[config.MONGO_COLLECTION]
 
+
+def get_failure_collection() -> Collection[Any]:
+    """Return the configured failure collection."""
+    client = get_client()
+    db = client[config.MONGO_DB_NAME]
+    return db[config.MONGO_FAILURE_COLLECTION]
+
 # Insert a document into the lesson_runs collection
 def insert_lesson_run(doc: dict) -> None:
     """Insert a telemetry document into MongoDB."""
     col = get_collection()
+    col.insert_one(doc)
+
+
+def insert_lesson_failure(doc: dict) -> None:
+    """Insert a failure document into MongoDB."""
+    col = get_failure_collection()
     col.insert_one(doc)

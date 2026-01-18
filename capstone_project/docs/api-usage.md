@@ -78,6 +78,8 @@ Expected response: `200 OK`
 - `400` for invalid requests or validation failures.
 - `500` for generation errors.
 
+Backend failures are logged to MongoDB failure telemetry for troubleshooting.
+
 ## Frontend note
 
 The frontend calls the backend via `frontend/src/api/lessonClient.ts` and follows this contract.

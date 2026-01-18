@@ -77,6 +77,7 @@ The backend reads environment variables from `.env` or the container environment
 - `MODEL`: LLM model name (defaults to `gpt-4.1-mini`)
 - `USE_LLM_CONTENT`: toggle LLM-backed content generation (`true`/`false`)
 - `CORS_ORIGINS`: comma-separated list of allowed origins (default: `http://localhost:8080`)
+- `MONGO_FAILURE_COLLECTION`: MongoDB collection name for failure telemetry (default: `lesson_failures`)
 
 ## Quick start
 

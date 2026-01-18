@@ -4,7 +4,7 @@
 
 The backend generates a single 15-minute lesson per request using three cooperating agents. Each agent is narrow in scope and produces structured outputs that are combined into the response defined in `openapi.yaml`.
 
-The system is stateless from a user perspective. Persistence is limited to append-only telemetry logging in MongoDB.
+The system is stateless from a user perspective. Persistence is limited to append-only telemetry logging in MongoDB, including failure records.
 
 ## Agents and responsibilities
 
@@ -26,12 +26,13 @@ Prompt editing guidance: `docs/prompts.md`
 4) Validator enforces structural rules (including required sections and formatting) and normalizes total time to 15 minutes.
 5) Renderer converts blocks to Markdown for the API response.
 6) Persist telemetry (request metadata + output summary) after validating the telemetry record.
+7) Persist failure telemetry when validation or generation fails.
 7) Return the final `LessonResponse`.
 
 ## Error handling
 
 - Validation raises `ValueError` for structural issues (empty content, duplicate IDs, too-short sections, impossible totals). These errors currently surface as 500s unless an API exception handler is added.
-- Generation errors would return a 500 error and are logged for telemetry.
+- Generation errors return a 500 error and are logged to failure telemetry.
 - No retries or background processing are used.
 
 ## Data contracts

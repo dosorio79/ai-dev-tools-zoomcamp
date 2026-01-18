@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Failure telemetry stored in Mongo for schema validation errors and unexpected exceptions.
+
 ### Changed
 - Refined frontend typography hierarchy for clearer primary/secondary/tertiary text contrast.
 - Tweaked header/logo styling and in-card spacing for a tighter, calmer layout.

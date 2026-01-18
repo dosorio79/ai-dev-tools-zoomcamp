@@ -101,6 +101,9 @@ The application logs each lesson generation run to MongoDB, storing:
 - Validation metadata
 - Timestamp
 
+Failure cases (schema validation, content validation, unexpected exceptions) are recorded
+as separate failure documents for post-mortem analysis.
+
 This telemetry-first design mirrors authenticated usage patterns and allows a future transition to authenticated user sessions without schema changes.
 
 ---
@@ -169,6 +172,7 @@ Create your environment file from `.env-example` and update values as needed:
 - `MODEL`: LLM model name (defaults to `gpt-4.1-mini`)
 - `USE_LLM_CONTENT`: toggle LLM-backed content generation (`true`/`false`)
 - `CORS_ORIGINS`: comma-separated list of allowed origins (default: `http://localhost:8080`)
+- `MONGO_FAILURE_COLLECTION`: MongoDB collection name for failure telemetry (default: `lesson_failures`)
 
 ### Frontend (real API)
 
